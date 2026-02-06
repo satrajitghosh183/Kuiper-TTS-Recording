@@ -1,0 +1,307 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TT Otilito Sans - add font files to public/fonts/ for full support
+   See: https://dribbble.com/shots/26425491-TT-Otilito-Sans-Font-Family */
+@font-face {
+  font-family: 'TT Otilito Sans';
+  src: url('/fonts/tt-otilito-sans-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TT Otilito Sans';
+  src: url('/fonts/tt-otilito-sans-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TT Otilito Sans';
+  src: url('/fonts/tt-otilito-sans-semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TT Otilito Sans';
+  src: url('/fonts/tt-otilito-sans-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* StringTune Design System - Global Styles */
+
+@layer base {
+  /* Reset and base styles */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--studio-bg-0);
+    color: var(--studio-text-0);
+    font-family: 'Plus Jakarta Sans', 'TT Otilito Sans', Inter, 'SF Pro Display', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Focus styles (studio design) */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--studio-bg-0), 0 0 0 4px var(--studio-accent);
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--studio-accent-muted);
+    color: var(--studio-text-0);
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--studio-bg-0);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--studio-border);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--studio-text-2);
+  }
+}
+
+@layer components {
+  /* Button base (studio soft UI) */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-6 py-3 rounded-2xl;
+    @apply font-medium text-body;
+    @apply transition-all duration-fast ease-default;
+    @apply cursor-pointer select-none;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--studio-accent);
+    color: var(--studio-bg-0);
+  }
+  .btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn-secondary {
+    background: var(--studio-glass);
+    border: 1px solid var(--studio-border);
+    color: var(--studio-text-0);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--studio-glass-strong);
+    border-color: var(--studio-accent);
+    color: var(--studio-accent);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--studio-text-1);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    color: var(--studio-text-0);
+    background: var(--studio-glass);
+  }
+
+  /* Card (glassmorphism + soft UI) */
+  .card {
+    background: var(--studio-glass);
+    backdrop-filter: blur(var(--studio-blur));
+    -webkit-backdrop-filter: blur(var(--studio-blur));
+    border: 1px solid var(--studio-border);
+    border-radius: var(--studio-card-radius);
+    box-shadow: var(--studio-shadow-outer), var(--studio-shadow-inner);
+    padding: var(--studio-padding);
+    transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .card-elevated {
+    box-shadow: var(--studio-shadow-outer), var(--studio-shadow-inner);
+  }
+  .card-elevated:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 28px 56px -14px rgba(0, 0, 0, 0.5), var(--studio-shadow-inner);
+  }
+
+  /* Input - Apple glassmorphism */
+  .input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid var(--studio-border-apple);
+    border-radius: 16px;
+    padding: 12px 16px;
+    color: var(--studio-text-0);
+    transition: all 0.15s ease;
+  }
+  .input::placeholder {
+    color: var(--studio-text-2);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--studio-accent);
+    box-shadow: 0 0 0 3px var(--studio-accent-muted);
+  }
+
+  .input-error {
+    border-color: var(--studio-accent-recording);
+    background: rgba(255, 69, 58, 0.08);
+  }
+
+  /* Progress bar */
+  .progress {
+    height: 4px;
+    background: var(--studio-border);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--studio-accent);
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+  }
+
+  /* Modal backdrop */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .modal-content {
+    background: var(--studio-glass-apple);
+    backdrop-filter: saturate(180%) blur(40px);
+    -webkit-backdrop-filter: saturate(180%) blur(40px);
+    border: 1px solid var(--studio-border-apple);
+    border-radius: var(--studio-card-radius);
+    padding: 32px;
+    max-width: 32rem;
+    width: 100%;
+    margin: 0 16px;
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@layer utilities {
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-accent to-accent-hover;
+  }
+
+  /* Subtle grain texture overlay */
+  .grain {
+    position: relative;
+  }
+
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+  }
+
+  /* Glow effect */
+  .glow {
+    @apply relative;
+  }
+
+  .glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background: var(--studio-accent-muted);
+    filter: blur(24px);
+    border-radius: 9999px;
+  }
+
+  /* Draggable region for Electron */
+  .draggable {
+    -webkit-app-region: drag;
+  }
+
+  .no-drag {
+    -webkit-app-region: no-drag;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Stagger animation delay utilities */
+  .stagger-1 { animation-delay: 30ms; }
+  .stagger-2 { animation-delay: 60ms; }
+  .stagger-3 { animation-delay: 90ms; }
+  .stagger-4 { animation-delay: 120ms; }
+  .stagger-5 { animation-delay: 150ms; }
+  .stagger-6 { animation-delay: 180ms; }
+  .stagger-7 { animation-delay: 210ms; }
+  .stagger-8 { animation-delay: 240ms; }
+
+  /* Top loading bar - animates left to right */
+  @keyframes loadingBar {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+

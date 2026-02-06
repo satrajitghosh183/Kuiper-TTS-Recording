@@ -1,0 +1,195 @@
+/**
+ * Recording Studio Design Tokens
+ * Liquid glass + earthy palette (no neon)
+ * Dark mode default, light mode via [data-theme="light"]
+ */
+
+:root {
+  /* Dark mode - earthy charcoal palette */
+  --studio-bg-0: #1a1c1a;
+  --studio-bg-1: #2d3028;
+  /* Liquid glass - frosted translucency */
+  --studio-glass: rgba(255, 255, 255, 0.08);
+  --studio-glass-strong: rgba(255, 255, 255, 0.12);
+  --studio-glass-apple: rgba(255, 255, 255, 0.10);
+  --studio-border: rgba(255, 255, 255, 0.10);
+  --studio-border-apple: rgba(255, 255, 255, 0.16);
+  --studio-text-0: rgba(255, 255, 255, 0.92);
+  --studio-text-1: rgba(255, 255, 255, 0.70);
+  --studio-text-2: rgba(255, 255, 255, 0.45);
+  /* Muted sage accent (no neon green) */
+  --studio-accent: #7a8a7a;
+  --studio-accent-hover: #8a9a8a;
+  --studio-accent-muted: rgba(122, 138, 122, 0.25);
+  --studio-accent-recording: #c45c52;
+  --studio-shadow-outer: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+  --studio-shadow-inner: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), inset 0 -1px 0 0 rgba(0, 0, 0, 0.15);
+  --studio-card-radius: 28px;
+  --studio-blur: 22px;
+  --studio-padding: 28px;
+  --studio-icon-size: 24px;
+}
+
+/* Light mode - creamy beige palette */
+[data-theme="light"] {
+  --studio-bg-0: #faf8f6;
+  --studio-bg-1: #f0ede8;
+  --studio-glass: rgba(0, 0, 0, 0.04);
+  --studio-glass-strong: rgba(0, 0, 0, 0.08);
+  --studio-glass-apple: rgba(0, 0, 0, 0.05);
+  --studio-border: rgba(0, 0, 0, 0.08);
+  --studio-border-apple: rgba(0, 0, 0, 0.12);
+  --studio-text-0: #1a1c1a;
+  --studio-text-1: #4a5248;
+  --studio-text-2: #7a8a7a;
+  --studio-accent: #4a5248;
+  --studio-accent-hover: #3d453c;
+  --studio-accent-muted: rgba(74, 82, 72, 0.2);
+  --studio-accent-recording: #b8544a;
+  --studio-shadow-outer: 0 16px 40px -12px rgba(0, 0, 0, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.08);
+  --studio-shadow-inner: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Desk scene (warm wood, soft sunlight) */
+[data-scene="desk"] {
+  --studio-bg-0: #1a1510;
+  --studio-bg-1: #2d2419;
+  --studio-glass: rgba(255, 255, 255, 0.12);
+  --studio-glass-strong: rgba(255, 255, 255, 0.18);
+  --studio-border: rgba(255, 255, 255, 0.12);
+}
+
+/* Liquid glass card - frosted, wet-glass aesthetic */
+.studio-card {
+  position: relative;
+  background: var(--studio-glass-apple);
+  backdrop-filter: saturate(200%) blur(48px);
+  -webkit-backdrop-filter: saturate(200%) blur(48px);
+  border: 1px solid var(--studio-border-apple);
+  border-radius: var(--studio-card-radius);
+  box-shadow: var(--studio-shadow-outer), var(--studio-shadow-inner);
+  padding: var(--studio-padding);
+  overflow: hidden;
+}
+
+/* Top-left sheen - liquid glass highlight */
+.studio-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    transparent 60%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Subtle noise + droplet-like specular highlights */
+.studio-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Liquid glass panel - reusable for Welcome, etc. */
+.liquid-glass {
+  background: var(--studio-glass-apple);
+  backdrop-filter: saturate(200%) blur(48px);
+  -webkit-backdrop-filter: saturate(200%) blur(48px);
+  border: 1px solid var(--studio-border-apple);
+  box-shadow: var(--studio-shadow-outer), var(--studio-shadow-inner);
+  position: relative;
+  overflow: hidden;
+}
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Sidebar - liquid glass, frosted translucency */
+.sidebar-liquid-glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: saturate(220%) blur(64px);
+  -webkit-backdrop-filter: saturate(220%) blur(64px);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.08),
+    8px 0 32px -12px rgba(0, 0, 0, 0.35);
+}
+.sidebar-liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.05) 25%,
+    transparent 55%
+  );
+  pointer-events: none;
+  border-radius: 0;
+}
+.sidebar-liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+}
+
+/* Admin panel (white matte industrial) */
+.studio-admin {
+  --admin-bg: #f8f9fa;
+  --admin-surface: #ffffff;
+  --admin-border: rgba(0, 0, 0, 0.08);
+  --admin-text: #1a1c1f;
+  --admin-text-muted: #6b7280;
+  --admin-grid: rgba(0, 0, 0, 0.04);
+}
+
+/* Abstract waveform - physics-like flow + glow */
+.waveform-flow {
+  stroke-dasharray: 24 12;
+  animation: waveform-flow 6s ease-in-out infinite;
+}
+.waveform-flow-2 {
+  animation-delay: -1.5s;
+}
+.waveform-flow-3 {
+  animation-delay: -3s;
+}
+.abstract-waveform-float {
+  animation: waveform-float 5s ease-in-out infinite;
+}
+@keyframes waveform-flow {
+  0%, 100% { stroke-dashoffset: 0; }
+  50% { stroke-dashoffset: 180; }
+}
+@keyframes waveform-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-4px) scale(1.015); }
+  50% { transform: translateY(2px) scale(0.99); }
+  75% { transform: translateY(-2px) scale(1.008); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-card {
+    transition: none !important;
+  }
+  .waveform-flow,
+  .abstract-waveform-float {
+    animation: none;
+  }
+}

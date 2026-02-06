@@ -1,0 +1,17 @@
+# Environment variables (contain secrets)
+.env
+**/.env
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-electron/
+*.pyc
+__pycache__/
+
+# IDE / OS
+.DS_Store
+*.swp
+*.swo
