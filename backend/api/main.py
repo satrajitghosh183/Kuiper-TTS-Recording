@@ -106,13 +106,31 @@ async def rate_limit_middleware(request: Request, call_next):
 
 
 # ============================================================================
-# Exception Handlers
+# Exception Handlers (with CORS headers - error responses bypass CORS middleware)
 # ============================================================================
+
+def _cors_headers_for_request(request: Request) -> dict:
+    """Add CORS headers so error responses work from frontend. Required when auth fails (401)."""
+    origin = (request.headers.get("origin") or "").rstrip("/")
+    allowed = settings.cors_origins if settings.is_production else ["*"]
+    normalized_allowed = [o.rstrip("/") for o in allowed]
+    if origin and (origin in normalized_allowed or "*" in normalized_allowed):
+        # Must echo specific origin when credentials are used (cannot use *)
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+        }
+    return {}
+
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     logger.warning(f"HTTP {exc.status_code}: {exc.detail}")
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=_cors_headers_for_request(request),
+    )
 
 
 @app.exception_handler(RequestValidationError)
@@ -120,7 +138,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     logger.warning(f"Validation error: {exc.errors()}")
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": "Validation error", "errors": exc.errors()}
+        content={"detail": "Validation error", "errors": exc.errors()},
+        headers=_cors_headers_for_request(request),
     )
 
 
@@ -128,7 +147,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
     error_detail = str(exc) if settings.debug else "An internal error occurred"
-    return JSONResponse(status_code=500, content={"detail": error_detail})
+    return JSONResponse(
+        status_code=500,
+        content={"detail": error_detail},
+        headers=_cors_headers_for_request(request),
+    )
 
 
 # ============================================================================
