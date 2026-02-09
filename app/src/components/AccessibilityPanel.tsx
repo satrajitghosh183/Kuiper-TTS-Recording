@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import { X, Type, Image, Contrast, Move, Eye, Volume2 } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { X, Type, Image, Contrast, Move, Eye, Volume2, Download, Play, Trash2 } from 'lucide-react'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
 import type { TextScale, IconScale } from '../hooks/useAccessibilitySettings'
 import { KeyboardShortcuts } from './KeyboardShortcuts'
+import { listLocalRecordings, deleteLocalRecording, type LocalRecording } from '../lib/localRecordings'
 
 interface AccessibilityPanelProps {
   isOpen: boolean
@@ -22,10 +23,87 @@ const ICON_SCALE_OPTIONS: { value: IconScale; label: string }[] = [
   { value: 'large', label: 'Large' },
 ]
 
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${Math.round(seconds)}s`
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.round(seconds % 60)
+  return secs > 0 ? `${mins}m ${secs}s` : `${mins}m`
+}
+
+function LocalRecordingRow({
+  rec,
+  isPlaying,
+  onPlay,
+  onDelete,
+}: {
+  rec: LocalRecording
+  isPlaying: boolean
+  onPlay: () => void
+  onDelete: () => void
+}) {
+  return (
+    <div
+      className="flex items-center justify-between gap-2 p-2 rounded-lg"
+      style={{ background: 'var(--studio-glass)', border: '1px solid var(--studio-border)' }}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-sm truncate" style={{ color: 'var(--studio-text-0)' }}>
+          {rec.phraseText}
+        </p>
+        <p className="text-xs" style={{ color: 'var(--studio-text-2)' }}>
+          {rec.scriptName} · {formatDuration(rec.durationSeconds)}
+        </p>
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <button
+          type="button"
+          onClick={onPlay}
+          className="p-1.5 rounded-lg hover:bg-[var(--studio-glass-strong)] transition-colors"
+          aria-label={isPlaying ? 'Stop' : 'Play'}
+          style={{ color: 'var(--studio-accent)' }}
+          title={isPlaying ? 'Stop' : 'Play'}
+        >
+          <Play size={16} className={isPlaying ? 'animate-pulse' : ''} />
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="p-1.5 rounded-lg hover:bg-[var(--studio-glass-strong)] transition-colors"
+          aria-label="Delete"
+          style={{ color: 'var(--studio-text-2)' }}
+        >
+          <Trash2 size={14} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps) {
   const { settings, setSettings, resetSettings } = useAccessibilitySettingsContext()
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [localRecordings, setLocalRecordings] = useState<LocalRecording[]>([])
+  const [playingId, setPlayingId] = useState<string | null>(null)
+  const playingAudioRef = useRef<HTMLAudioElement | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+
+  const stopPlaying = useCallback(() => {
+    if (playingAudioRef.current) {
+      playingAudioRef.current.pause()
+      playingAudioRef.current = null
+    }
+    setPlayingId(null)
+  }, [])
+
+  useEffect(() => {
+    if (isOpen) {
+      listLocalRecordings().then(setLocalRecordings)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) stopPlaying()
+  }, [isOpen, stopPlaying])
 
   useEffect(() => {
     if (!isOpen) return
@@ -200,7 +278,62 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
                   className="w-4 h-4 rounded"
                 />
               </label>
+              <label className="flex items-center justify-between gap-4 cursor-pointer">
+                <span className="flex items-center gap-2" style={{ color: 'var(--studio-text-0)' }}>
+                  <Download size={18} style={{ color: 'var(--studio-accent)' }} />
+                  Save recordings locally (on this device)
+                </span>
+                <input
+                  type="checkbox"
+                  checked={settings.saveRecordingsLocally}
+                  onChange={(e) => setSettings({ saveRecordingsLocally: e.target.checked })}
+                  className="w-4 h-4 rounded"
+                />
+              </label>
             </div>
+
+            {/* Local recordings */}
+            {localRecordings.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Play size={18} style={{ color: 'var(--studio-accent)' }} />
+                  <h3 className="text-sm font-medium" style={{ color: 'var(--studio-text-0)' }}>
+                    Local recordings ({localRecordings.length})
+                  </h3>
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {localRecordings.map((rec) => (
+                    <LocalRecordingRow
+                      key={rec.id}
+                      rec={rec}
+                      isPlaying={playingId === rec.id}
+                      onPlay={() => {
+                        if (playingId === rec.id) {
+                          stopPlaying()
+                          return
+                        }
+                        stopPlaying()
+                        setPlayingId(rec.id)
+                        const url = URL.createObjectURL(rec.audioBlob)
+                        const audio = new Audio(url)
+                        playingAudioRef.current = audio
+                        audio.onended = () => {
+                          URL.revokeObjectURL(url)
+                          playingAudioRef.current = null
+                          setPlayingId(null)
+                        }
+                        audio.play().catch(() => stopPlaying())
+                      }}
+                      onDelete={async () => {
+                        if (playingId === rec.id) stopPlaying()
+                        await deleteLocalRecording(rec.id)
+                        setLocalRecordings((prev) => prev.filter((r) => r.id !== rec.id))
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-2 pt-2">
               <button

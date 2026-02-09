@@ -9,6 +9,7 @@ import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { useScreenReader } from '../hooks/useScreenReader'
 import { useVoiceAnnouncements } from '../hooks/useVoiceAnnouncements'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
+import { saveLocalRecording } from '../lib/localRecordings'
 import { useRecordingActive } from '../contexts/RecordingActiveContext'
 
 interface RecordingEntry {
@@ -298,6 +299,16 @@ export function Record() {
         currentLine
       )
       if (result.success) {
+        if (accessibilitySettings.saveRecordingsLocally) {
+          saveLocalRecording(
+            audioBlob,
+            currentScript.name,
+            currentScript.id,
+            currentLineIndex,
+            currentLine,
+            result.duration_seconds
+          ).catch((err) => console.warn('Failed to save recording locally:', err))
+        }
         setRecordings(prev =>
           new Map(prev).set(recordingKey, {
             id: result.id!,
@@ -320,7 +331,7 @@ export function Record() {
       announce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, 'assertive')
       voiceAnnounce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, true)
     }
-  }, [audioBlob, currentScript, currentLineIndex, currentLine, recordingKey, clearRecording, announce])
+  }, [audioBlob, currentScript, currentLineIndex, currentLine, recordingKey, clearRecording, announce, voiceAnnounce, accessibilitySettings.saveRecordingsLocally])
 
   const handlePronounce = useCallback(async () => {
     if (!currentLine) return
