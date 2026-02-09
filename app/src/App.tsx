@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { Layout } from './components/Layout'
 import { GlobalAccessibility } from './components/GlobalAccessibility'
 import { PageAnnouncements } from './components/PageAnnouncements'
@@ -44,6 +45,7 @@ function App() {
         </RecordingActiveProvider>
         </AccessibilitySettingsProvider>
       </AuthProvider>
+      <Analytics />
     </BrowserRouter>
   )
 }
