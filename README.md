@@ -321,6 +321,7 @@ Ensure `SUPABASE_URL` and `SUPABASE_KEY` are set (e.g. in `backend/.env`).
 |---------|---------|--------------|
 | **Supabase** | Database, Auth, Storage | supabase.com |
 | **Render** | Backend API | render.com |
+| **Google Cloud** | Backend API (Cloud Run), Frontend (Firebase) | cloud.google.com |
 | **Vercel** | Frontend SPA | vercel.com |
 
 ### Supabase
@@ -350,6 +351,23 @@ Ensure `SUPABASE_URL` and `SUPABASE_KEY` are set (e.g. in `backend/.env`).
 5. Deploy and note the Render URL (e.g. `https://kuiper-tts-api.onrender.com`)
 
 **Blueprint:** If the repo has `render.yaml`, connect the repo and Render can create the service from it. Add env vars in the dashboard.
+
+### Google Cloud (Backend + Frontend)
+
+Deploy to **Cloud Run** for the backend and optionally **Firebase Hosting** for the frontend. See **[GCP_DEPLOYMENT.md](GCP_DEPLOYMENT.md)** for full instructions.
+
+Quick start:
+
+```bash
+# Enable APIs and create Artifact Registry repo
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+gcloud artifacts repositories create kuiper-tts --repository-format=docker --location=us-central1
+
+# Deploy backend
+gcloud builds submit --config=cloudbuild.yaml .
+```
+
+Set environment variables in Cloud Run (see `GCP_DEPLOYMENT.md`). The backend uses `PORT` from Cloud Run (default 8080).
 
 ### Vercel (Frontend)
 

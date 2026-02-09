@@ -1,0 +1,20 @@
+# Exclude from Cloud Build context
+.git
+.gitignore
+.gcloudignore
+node_modules
+app/node_modules
+__pycache__
+*.pyc
+*.pyo
+.env
+.env.*
+!.env.example
+*.log
+.vscode
+.idea
+recordings
+data/wavs
+*.mp3
+*.mp4
+.DS_Store
