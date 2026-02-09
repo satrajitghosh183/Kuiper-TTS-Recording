@@ -4,7 +4,7 @@ import { ChevronLeft, Loader2, AlertCircle, LayoutGrid } from 'lucide-react'
 import { LiquidMetalIcon } from '../components/LiquidMetalIcon'
 import { RecordingStudioCard, BackgroundScene, AudioControlsPanel } from '../components/RecordingStudio'
 import { KeyboardShortcuts } from '../components/KeyboardShortcuts'
-import { api, type Recording as RecordingType, type Script } from '../lib/api'
+import { api, APIError, type Recording as RecordingType, type Script } from '../lib/api'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { useScreenReader } from '../hooks/useScreenReader'
 import { useVoiceAnnouncements } from '../hooks/useVoiceAnnouncements'
@@ -29,6 +29,7 @@ export function Record() {
   const [isLoadingScripts, setIsLoadingScripts] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [playError, setPlayError] = useState<string | null>(null)
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
   const [showAudioControls, setShowAudioControls] = useState(false)
   const audioPlaybackRef = useRef<HTMLAudioElement | null>(null)
@@ -85,7 +86,7 @@ export function Record() {
         setAudioGain(Math.max(20, Math.min(200, settings.gain)))
         setAudioBass(Math.max(-12, Math.min(12, settings.bass)))
         setAudioTreble(Math.max(-12, Math.min(12, settings.treble)))
-        setAudioDeviceId(settings.device_id)
+        setAudioDeviceId(settings.device_id && String(settings.device_id).trim() ? settings.device_id : null)
       } catch (err) {
         console.warn('Failed to load user settings, using local defaults', err)
       }
@@ -186,6 +187,7 @@ export function Record() {
     audioLevel,
     duration,
     audioBlob,
+    error: recordingError,
     startRecording,
     stopRecording,
     clearRecording,
@@ -206,9 +208,14 @@ export function Record() {
     } else {
       clearRecording()
       setSaveError(null)
-      await startRecording(audioDeviceId ?? undefined)
-      announce('Recording started. Speak now.', 'polite')
-      // Voice guide is paused during recording; no spoken announcement here
+      setPlayError(null)
+      const deviceId = audioDeviceId && String(audioDeviceId).trim() ? audioDeviceId : undefined
+      const result = await startRecording(deviceId)
+      if (result.ok) {
+        announce('Recording started. Speak now.', 'polite')
+      } else {
+        announce(result.error || 'Could not start recording.', 'assertive')
+      }
     }
   }, [isRecording, stopRecording, clearRecording, startRecording, audioDeviceId, announce])
 
@@ -240,6 +247,7 @@ export function Record() {
     advance()
     clearRecording()
     setSaveError(null)
+    setPlayError(null)
     if (nextLineText) {
       setTimeout(() => voiceAnnounce(`Moved to next phrase: ${nextLineText}`, false), 100)
     }
@@ -260,6 +268,7 @@ export function Record() {
     }
     clearRecording()
     setSaveError(null)
+    setPlayError(null)
     if (prevLineText) {
       setTimeout(() => voiceAnnounce(`Moved to previous phrase: ${prevLineText}`, false), 100)
     }
@@ -273,6 +282,7 @@ export function Record() {
     })
     clearRecording()
     setSaveError(null)
+    setPlayError(null)
     voiceAnnounce('Recording cleared. Ready to record again.', false)
   }, [recordingKey, clearRecording, voiceAnnounce])
 
@@ -280,6 +290,7 @@ export function Record() {
     if (!audioBlob || !currentScript) return
     try {
       setSaveError(null)
+      setPlayError(null)
       const result = await api.saveRecording(
         audioBlob,
         currentScript.id,
@@ -334,6 +345,7 @@ export function Record() {
   }, [currentLine, announce])
 
   const handlePlay = useCallback(() => {
+    setPlayError(null)
     if (audioPlaybackRef.current) {
       audioPlaybackRef.current.pause()
       audioPlaybackRef.current = null
@@ -346,23 +358,44 @@ export function Record() {
         URL.revokeObjectURL(url)
         audioPlaybackRef.current = null
       }
-      audio.play().catch((err) => console.warn('Playback failed:', err))
+      audio.play().catch((err) => {
+        const msg = err instanceof Error ? err.message : 'Playback failed'
+        setPlayError(msg)
+        announce(msg, 'assertive')
+      })
     } else if (hasRecording) {
       const entry = recordings.get(recordingKey)
       if (entry?.id) {
-        api.fetchRecordingAudio(entry.id).then((blob) => {
-          const url = URL.createObjectURL(blob)
-          const audio = new Audio(url)
-          audioPlaybackRef.current = audio
-          audio.onended = () => {
-            URL.revokeObjectURL(url)
-            audioPlaybackRef.current = null
-          }
-          audio.play().catch((err) => console.warn('Playback failed:', err))
-        }).catch((err) => console.warn('Playback failed:', err))
+        api
+          .fetchRecordingAudio(entry.id)
+          .then((blob) => {
+            const url = URL.createObjectURL(blob)
+            const audio = new Audio(url)
+            audioPlaybackRef.current = audio
+            audio.onended = () => {
+              URL.revokeObjectURL(url)
+              audioPlaybackRef.current = null
+            }
+            return audio.play()
+          })
+          .then(() => {})
+          .catch((err) => {
+            const msg =
+              err instanceof APIError
+                ? err.detail || err.message
+                : err instanceof Error
+                  ? err.message
+                  : 'Failed to load or play recording. Check your connection and login.'
+            setPlayError(msg)
+            announce(msg, 'assertive')
+          })
+      } else {
+        setPlayError('No recording to play')
       }
+    } else {
+      setPlayError('Record first, then play')
     }
-  }, [audioBlob, hasRecording, recordings, recordingKey])
+  }, [audioBlob, hasRecording, recordings, recordingKey, announce])
 
   useEffect(() => {
     return () => {
@@ -404,6 +437,7 @@ export function Record() {
         } else if (audioBlob) {
           clearRecording()
           setSaveError(null)
+          setPlayError(null)
         }
       } else if (e.code === 'ArrowRight') {
         e.preventDefault()
@@ -424,6 +458,7 @@ export function Record() {
       setCurrentLineIndex(clamped)
       clearRecording()
       setSaveError(null)
+      setPlayError(null)
     },
     [currentScript, clearRecording]
   )
@@ -533,7 +568,7 @@ export function Record() {
           onClose={() => setShowKeyboardShortcuts(false)}
         />
 
-        {saveError && (
+        {(saveError || recordingError || playError) && (
           <div
             className="mt-4 px-4 py-3 rounded-xl max-w-[560px] w-full mx-auto flex items-center gap-3"
             style={{
@@ -542,7 +577,9 @@ export function Record() {
             }}
           >
             <AlertCircle size={20} className="text-[var(--studio-accent-recording)] shrink-0" />
-            <p className="text-sm text-[var(--studio-accent-recording)]">{saveError}</p>
+            <p className="text-sm text-[var(--studio-accent-recording)]">
+              {saveError || recordingError || playError}
+            </p>
           </div>
         )}
 
@@ -562,6 +599,8 @@ export function Record() {
                     setCurrentScriptIndex(idx)
                     setCurrentLineIndex(0)
                     clearRecording()
+                    setSaveError(null)
+                    setPlayError(null)
                   }}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                     isActive

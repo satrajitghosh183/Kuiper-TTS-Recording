@@ -257,6 +257,18 @@ class UserSettings(BaseModel):
 # Health Check
 # ============================================================================
 
+@app.get("/")
+@app.get("/api")
+async def root():
+    """Root endpoint - avoids 404 for health checks or users visiting the API URL."""
+    return {
+        "service": "Kuiper TTS API",
+        "version": "2.0.0",
+        "docs": "/docs" if not settings.is_production else None,
+        "health": "/api/health",
+    }
+
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""

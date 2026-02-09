@@ -1,7 +1,31 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 
+/** Map getUserMedia / MediaRecorder errors to user-friendly messages */
+function toUserFriendlyMicError(err: unknown): string {
+  if (err instanceof DOMException) {
+    switch (err.name) {
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        return 'Microphone permission denied. Please allow microphone access in your browser and try again.'
+      case 'NotFoundError':
+        return 'No microphone found. Please connect a microphone and try again.'
+      case 'NotReadableError':
+        return 'Microphone is in use by another app. Close other apps using the mic, then try again.'
+      case 'OverconstrainedError':
+        return 'Microphone settings could not be met. Try selecting "Default microphone" or a different device.'
+      default:
+        return err.message || 'Could not access microphone.'
+    }
+  }
+  if (err instanceof Error) return err.message
+  return 'Failed to start recording. Please try again.'
+}
+
 // Convert audio chunks to WAV format
 async function convertToWav(chunks: Blob[]): Promise<Blob> {
+  if (!chunks.length || chunks.every((c) => !c.size)) {
+    throw new Error('No audio data recorded. Please try again and speak into the microphone.')
+  }
   const audioBlob = new Blob(chunks, { type: chunks[0]?.type || 'audio/webm' })
   const arrayBuffer = await audioBlob.arrayBuffer()
   const audioContext = new AudioContext({ sampleRate: 22050 })
@@ -142,8 +166,15 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
   }, [])
 
   const startRecording = useCallback(
-    async (deviceId?: string) => {
+    async (deviceId?: string): Promise<{ ok: boolean; error?: string }> => {
       try {
+        // Check API availability (HTTPS required, or localhost)
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error(
+            'Microphone access is not available. Use HTTPS or localhost, and ensure your browser supports media capture.'
+          )
+        }
+
         // Reset state
         chunksRef.current = []
         setState((prev) => ({
@@ -155,7 +186,12 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
           error: null,
         }))
 
-        // Get media stream
+        // Only use deviceId if it's a non-empty string; empty string can cause OverconstrainedError
+        const effectiveDeviceId =
+          typeof deviceId === 'string' && deviceId.trim() && deviceId !== 'default'
+            ? deviceId.trim()
+            : undefined
+
         const constraints: MediaStreamConstraints = {
           audio: {
             sampleRate,
@@ -163,11 +199,29 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
             echoCancellation: false,
             noiseSuppression: false,
             autoGainControl: false,
-            ...(deviceId ? { deviceId: { exact: deviceId } } : {}),
+            ...(effectiveDeviceId ? { deviceId: { ideal: effectiveDeviceId } } : {}),
           },
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        let stream: MediaStream
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints)
+        } catch (getStreamErr) {
+          // If specific device fails (disconnected, in use, etc.), retry with default
+          if (effectiveDeviceId) {
+            stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                sampleRate,
+                channelCount,
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+              },
+            })
+          } else {
+            throw getStreamErr
+          }
+        }
         streamRef.current = stream
         isRecordingRef.current = true
 
@@ -218,13 +272,23 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
           }
         }
 
+        mediaRecorderRef.current.onerror = (event) => {
+          const errMsg =
+            event instanceof ErrorEvent ? event.message : 'Recording failed. Please try again.'
+          setState((prev) => ({ ...prev, isRecording: false, error: errMsg }))
+        }
+
         mediaRecorderRef.current.onstop = async () => {
-          // Convert WebM/MP4 to WAV using Web Audio API
-          const audioBlob = await convertToWav(chunksRef.current)
-          setState((prev) => ({ ...prev, audioBlob }))
-          // Only auto-save if explicitly enabled (legacy behavior); otherwise caller saves via blob
-          if (autoSave && onDataAvailable) {
-            onDataAvailable(audioBlob)
+          try {
+            const audioBlob = await convertToWav(chunksRef.current)
+            setState((prev) => ({ ...prev, audioBlob }))
+            if (autoSave && onDataAvailable) {
+              onDataAvailable(audioBlob)
+            }
+          } catch (convertErr) {
+            const msg =
+              convertErr instanceof Error ? convertErr.message : 'Failed to process recording.'
+            setState((prev) => ({ ...prev, error: msg }))
           }
         }
 
@@ -234,13 +298,15 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
 
         // Start level monitoring
         updateAudioLevel()
+        return { ok: true }
       } catch (err) {
-        const error = err instanceof Error ? err.message : 'Failed to start recording'
+        const error = toUserFriendlyMicError(err)
         setState((prev) => ({
           ...prev,
           isRecording: false,
           error,
         }))
+        return { ok: false, error }
       }
     },
     [sampleRate, channelCount, onDataAvailable, autoSave, updateAudioLevel, processorSettings]

@@ -236,6 +236,7 @@ export function AudioControlsPanel({
     isRecording: isTestRecording,
     audioLevel: testAudioLevel,
     audioBlob: testBlob,
+    error: testRecordingError,
     startRecording: startTestRecording,
     stopRecording: stopTestRecording,
     clearRecording: clearTestRecording,
@@ -249,7 +250,8 @@ export function AudioControlsPanel({
       stopTestRecording()
     } else {
       clearTestRecording()
-      await startTestRecording(deviceId ?? undefined)
+      const effectiveId = deviceId && String(deviceId).trim() ? deviceId : undefined
+      await startTestRecording(effectiveId)
     }
   }, [isTestRecording, stopTestRecording, clearTestRecording, startTestRecording, deviceId])
 
@@ -301,12 +303,17 @@ export function AudioControlsPanel({
           .filter((d) => d.kind === 'audioinput')
           .map((d) => ({ deviceId: d.deviceId, label: d.label || `Microphone ${d.deviceId.slice(0, 8)}` }))
         setDevices(inputs)
+        // If saved device is no longer available (unplugged, etc.), clear it
+        const currentId = deviceId && String(deviceId).trim() ? deviceId : null
+        if (currentId && inputs.length > 0 && !inputs.some((d) => d.deviceId === currentId)) {
+          onDeviceChange(null)
+        }
       } catch {
         setDevices([])
       }
     }
     load()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- only run on mount
 
   return (
     <motion.div
@@ -386,9 +393,13 @@ export function AudioControlsPanel({
               Play Test
             </button>
           </div>
-          {(isTestRecording || testBlob) && (
-            <p className="text-xs mt-2" style={{ color: 'var(--studio-text-2)' }}>
-              {isTestRecording ? 'Recording...' : 'Click Play Test to hear your recording.'}
+          {(isTestRecording || testBlob || testRecordingError) && (
+            <p className="text-xs mt-2" style={{ color: testRecordingError ? 'var(--studio-accent-recording)' : 'var(--studio-text-2)' }}>
+              {testRecordingError
+                ? testRecordingError
+                : isTestRecording
+                  ? 'Recording...'
+                  : 'Click Play Test to hear your recording.'}
             </p>
           )}
         </div>
