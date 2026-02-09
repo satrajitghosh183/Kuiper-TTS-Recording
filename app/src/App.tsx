@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { GlobalAccessibility } from './components/GlobalAccessibility'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
 import { ScreenReaderProvider } from './hooks/useScreenReader'
@@ -19,6 +20,7 @@ function App() {
         <AccessibilityInit />
         <AccessibilitySettingsProvider>
         <ScreenReaderProvider>
+        <GlobalAccessibility />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />

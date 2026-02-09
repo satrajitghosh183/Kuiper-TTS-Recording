@@ -3,9 +3,6 @@ import { Mic, Settings, Home, LogOut, Sun, Moon, Music } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { LiquidMetalIcon } from './LiquidMetalIcon'
-import { AccessibilityIndicator } from './AccessibilityIndicator'
-import { AccessibilityPanel } from './AccessibilityPanel'
-import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
 import { useEffect, useState } from 'react'
 
 const navItems = [
@@ -21,8 +18,6 @@ export function Layout() {
   const location = useLocation()
   const { user, signOut } = useAuth()
   const prefersReducedMotion = useReducedMotion()
-  const { activeCount } = useAccessibilitySettingsContext()
-  const [showAccessibilityPanel, setShowAccessibilityPanel] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('kuyper_theme') as 'dark' | 'light' | null
@@ -193,16 +188,6 @@ export function Layout() {
           <span className="text-micro font-mono" style={{ color: 'var(--studio-text-2)' }}>v2.0.0</span>
         </div>
       </aside>
-
-      {/* Accessibility - bottom right */}
-      <AccessibilityIndicator
-        activeCount={activeCount}
-        onClick={() => setShowAccessibilityPanel(true)}
-      />
-      <AccessibilityPanel
-        isOpen={showAccessibilityPanel}
-        onClose={() => setShowAccessibilityPanel(false)}
-      />
 
       {/* Main content */}
       <main className="flex-1 overflow-auto" style={{ background: 'var(--studio-bg-0)' }}>

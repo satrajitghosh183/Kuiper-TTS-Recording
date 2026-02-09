@@ -10,7 +10,7 @@ export function AccessibilityIndicator({ activeCount, onClick }: AccessibilityIn
     <button
       type="button"
       onClick={onClick}
-      className="fixed bottom-4 right-4 z-40 flex items-center gap-2 p-3 rounded-xl transition-all min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)]"
+      className="flex items-center gap-2 p-3 rounded-xl transition-all min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)]"
       style={{
         background: 'var(--studio-glass-apple)',
         border: '1px solid var(--studio-border-apple)',

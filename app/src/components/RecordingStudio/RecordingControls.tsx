@@ -1,6 +1,7 @@
 import { SkipBack, SkipForward, RefreshCw, Play, Save, Volume2 } from 'lucide-react'
 import { LiquidMetalIcon } from '../LiquidMetalIcon'
 import { MicrophoneButton } from '../MicrophoneButton'
+import { Tooltip } from '../Tooltip'
 
 interface RecordingControlsProps {
   isRecording: boolean
@@ -120,14 +121,16 @@ export function RecordingControls({
       </button>
 
       {onShowShortcuts && (
-        <button
-          type="button"
-          onClick={onShowShortcuts}
-          className={`${btnClass} text-[var(--studio-text-2)]`}
-          aria-label="Show keyboard shortcuts (?)"
-        >
-          <span className="text-lg font-semibold">?</span>
-        </button>
+        <Tooltip content="Click here for help">
+          <button
+            type="button"
+            onClick={onShowShortcuts}
+            className={`${btnClass} text-[var(--studio-text-2)]`}
+            aria-label="Show keyboard shortcuts (?)"
+          >
+            <span className="text-lg font-semibold">?</span>
+          </button>
+        </Tooltip>
       )}
 
       <button
