@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useVoiceGuide } from '../hooks/useVoiceGuide'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
+import { useRecordingActive } from '../contexts/RecordingActiveContext'
 
 /**
  * Listens for mouse hover on interactive elements and announces their labels
@@ -8,8 +9,9 @@ import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettin
  */
 export function VoiceHoverListener() {
   const { settings } = useAccessibilitySettingsContext()
-  const { speak } = useVoiceGuide({
-    enabled: settings.voiceGuide,
+  const { recordingActive } = useRecordingActive()
+  const { speak, stop } = useVoiceGuide({
+    enabled: settings.voiceGuide && !recordingActive,
     rate: 1.0,
     pitch: 1.0,
     volume: 0.9,
@@ -17,7 +19,11 @@ export function VoiceHoverListener() {
   const lastAnnouncedRef = useRef<{ el: Element; text: string } | null>(null)
 
   useEffect(() => {
-    if (!settings.voiceGuide) return
+    if (recordingActive) stop()
+  }, [recordingActive, stop])
+
+  useEffect(() => {
+    if (!settings.voiceGuide || recordingActive) return
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement
@@ -60,7 +66,7 @@ export function VoiceHoverListener() {
       document.removeEventListener('mouseover', handleMouseOver, { capture: true })
       document.removeEventListener('mouseout', handleMouseOut, { capture: true })
     }
-  }, [settings.voiceGuide, speak])
+  }, [settings.voiceGuide, recordingActive, speak])
 
   return null
 }

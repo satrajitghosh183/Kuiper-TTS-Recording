@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useVoiceGuide } from './useVoiceGuide'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
+import { useRecordingActive } from '../contexts/RecordingActiveContext'
 
 /**
  * Hook for making contextual voice announcements.
@@ -8,8 +9,9 @@ import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettin
  */
 export function useVoiceAnnouncements() {
   const { settings } = useAccessibilitySettingsContext()
+  const { recordingActive } = useRecordingActive()
   const { speak } = useVoiceGuide({
-    enabled: settings.voiceGuide,
+    enabled: settings.voiceGuide && !recordingActive,
     rate: 1.0,
     pitch: 1.0,
     volume: 0.9,
@@ -17,11 +19,11 @@ export function useVoiceAnnouncements() {
 
   const announce = useCallback(
     (message: string, interrupt = false) => {
-      if (settings.voiceGuide) {
+      if (settings.voiceGuide && !recordingActive) {
         speak(message, interrupt)
       }
     },
-    [settings.voiceGuide, speak]
+    [settings.voiceGuide, recordingActive, speak]
   )
 
   return { announce }

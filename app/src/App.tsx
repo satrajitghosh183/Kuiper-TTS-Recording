@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
 import { ScreenReaderProvider } from './hooks/useScreenReader'
 import { AccessibilitySettingsProvider } from './contexts/AccessibilitySettingsContext'
+import { RecordingActiveProvider } from './contexts/RecordingActiveContext'
 import { AccessibilityInit } from './components/AccessibilityInit'
 import { Welcome, Record, Admin, Login, SignUp, Library } from './pages'
 
@@ -21,6 +22,7 @@ function App() {
       <AuthProvider>
         <AccessibilityInit />
         <AccessibilitySettingsProvider>
+        <RecordingActiveProvider>
         <ScreenReaderProvider>
         <GlobalAccessibility />
         <PageAnnouncements />
@@ -39,6 +41,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </ScreenReaderProvider>
+        </RecordingActiveProvider>
         </AccessibilitySettingsProvider>
       </AuthProvider>
     </BrowserRouter>

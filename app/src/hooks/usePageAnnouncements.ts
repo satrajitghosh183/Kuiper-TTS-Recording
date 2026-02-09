@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useVoiceGuide } from './useVoiceGuide'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
+import { useRecordingActive } from '../contexts/RecordingActiveContext'
 
 const PAGE_DESCRIPTIONS: Record<string, string> = {
   '/': 'Welcome page. Here you can see your recording progress and get started.',
@@ -24,15 +25,21 @@ const PAGE_ACTIONS: Record<string, string> = {
 export function usePageAnnouncements() {
   const location = useLocation()
   const { settings } = useAccessibilitySettingsContext()
-  const { speak } = useVoiceGuide({
-    enabled: settings.voiceGuide,
+  const { recordingActive } = useRecordingActive()
+  const { speak, stop } = useVoiceGuide({
+    enabled: settings.voiceGuide && !recordingActive,
     rate: 1.0,
     pitch: 1.0,
     volume: 0.9,
   })
 
+  // Stop any ongoing speech when recording starts
   useEffect(() => {
-    if (!settings.voiceGuide) return
+    if (recordingActive) stop()
+  }, [recordingActive, stop])
+
+  useEffect(() => {
+    if (!settings.voiceGuide || recordingActive) return
 
     const path = location.pathname
     const description = PAGE_DESCRIPTIONS[path] || `You are on ${path}`
@@ -45,12 +52,12 @@ export function usePageAnnouncements() {
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [location.pathname, settings.voiceGuide, speak])
+  }, [location.pathname, settings.voiceGuide, recordingActive, speak])
 
   // Welcome message when voice guide is first enabled
   useEffect(() => {
-    if (!settings.voiceGuide) return
-    
+    if (!settings.voiceGuide || recordingActive) return
+
     const wasEnabled = sessionStorage.getItem('voiceGuideEnabled')
     if (!wasEnabled) {
       sessionStorage.setItem('voiceGuideEnabled', 'true')
@@ -58,5 +65,5 @@ export function usePageAnnouncements() {
         speak('Voice guide enabled. You will hear navigation help and contextual information as you use the website.', true)
       }, 1000)
     }
-  }, [settings.voiceGuide, speak])
+  }, [settings.voiceGuide, recordingActive, speak])
 }

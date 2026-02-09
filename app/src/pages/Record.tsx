@@ -9,6 +9,7 @@ import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { useScreenReader } from '../hooks/useScreenReader'
 import { useVoiceAnnouncements } from '../hooks/useVoiceAnnouncements'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
+import { useRecordingActive } from '../contexts/RecordingActiveContext'
 
 interface RecordingEntry {
   id?: number
@@ -34,6 +35,7 @@ export function Record() {
   const { announce } = useScreenReader()
   const { announce: voiceAnnounce } = useVoiceAnnouncements()
   const { settings: accessibilitySettings } = useAccessibilitySettingsContext()
+  const { setRecordingActive } = useRecordingActive()
   const [audioGain, setAudioGain] = useState(() => {
     const v = localStorage.getItem('kuiper_audio_gain')
     return v ? Math.max(20, Math.min(200, parseInt(v, 10))) : 100
@@ -192,6 +194,11 @@ export function Record() {
     autoSave: false,
   })
 
+  // Pause voice guide during recording so it doesn't interfere
+  useEffect(() => {
+    setRecordingActive(isRecording)
+  }, [isRecording, setRecordingActive])
+
   const handleRecord = useCallback(async () => {
     if (isRecording) {
       stopRecording()
@@ -201,7 +208,7 @@ export function Record() {
       setSaveError(null)
       await startRecording(audioDeviceId ?? undefined)
       announce('Recording started. Speak now.', 'polite')
-      voiceAnnounce('Recording started. Speak clearly into your microphone.', true)
+      // Voice guide is paused during recording; no spoken announcement here
     }
   }, [isRecording, stopRecording, clearRecording, startRecording, audioDeviceId, announce])
 
