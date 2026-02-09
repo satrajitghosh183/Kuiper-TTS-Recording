@@ -46,6 +46,8 @@ if _env_file.exists():
 SCRIPT_FILES = [
     ("LauraVoice", "LauraVoice.txt"),
     ("phoneme_coverage", "phoneme_coverage.txt"),
+    ("trainingset_en", "data/trainingset.en.txt"),
+    ("trainingset_gr", "data/trainingset.gr.txt"),
 ]
 
 

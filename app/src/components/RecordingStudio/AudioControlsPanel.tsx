@@ -1,10 +1,11 @@
 /**
  * Audio controls panel - input gain, bass, treble, device selector.
- * Actually affects mic input via Web Audio API. Styled like Welcome card.
+ * Test recording section - record and play back to verify mic setup (like Discord/Zoom).
  */
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Mic, Plus, Minus, ChevronDown } from 'lucide-react'
+import { Mic, Plus, Minus, ChevronDown, Square, Play } from 'lucide-react'
+import { useAudioRecorder } from '../../hooks/useAudioRecorder'
 
 export interface AudioProcessorSettings {
   gain: number
@@ -229,6 +230,54 @@ export function AudioControlsPanel({
   const [devices, setDevices] = useState<AudioInputDevice[]>([])
   const [deviceOpen, setDeviceOpen] = useState(false)
   const deviceDropdownRef = useRef<HTMLDivElement>(null)
+  const testAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  const {
+    isRecording: isTestRecording,
+    audioLevel: testAudioLevel,
+    audioBlob: testBlob,
+    startRecording: startTestRecording,
+    stopRecording: stopTestRecording,
+    clearRecording: clearTestRecording,
+  } = useAudioRecorder({
+    processorSettings: { gain, bass, treble },
+    autoSave: false,
+  })
+
+  const handleTestRecord = useCallback(async () => {
+    if (isTestRecording) {
+      stopTestRecording()
+    } else {
+      clearTestRecording()
+      await startTestRecording(deviceId ?? undefined)
+    }
+  }, [isTestRecording, stopTestRecording, clearTestRecording, startTestRecording, deviceId])
+
+  const handleTestPlay = useCallback(() => {
+    if (testAudioRef.current) {
+      testAudioRef.current.pause()
+      testAudioRef.current = null
+    }
+    if (testBlob) {
+      const url = URL.createObjectURL(testBlob)
+      const audio = new Audio(url)
+      testAudioRef.current = audio
+      audio.onended = () => {
+        URL.revokeObjectURL(url)
+        testAudioRef.current = null
+      }
+      audio.play().catch((err) => console.warn('Test playback failed:', err))
+    }
+  }, [testBlob])
+
+  useEffect(() => {
+    return () => {
+      if (testAudioRef.current) {
+        testAudioRef.current.pause()
+        testAudioRef.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -289,8 +338,63 @@ export function AudioControlsPanel({
           </div>
         </div>
 
-        {/* Input level meter - when recording */}
-        {isRecording && (
+        {/* Test your microphone */}
+        <div className="mb-8">
+          <p className="text-xs font-medium tracking-widest uppercase mb-3" style={{ color: 'var(--studio-text-2)' }}>
+            Test Your Microphone
+          </p>
+          <p className="text-sm mb-4" style={{ color: 'var(--studio-text-1)' }}>
+            Record a short clip and play it back to verify your setup.
+          </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <button
+              type="button"
+              onClick={handleTestRecord}
+              disabled={isRecording}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all min-h-[44px] min-w-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: isTestRecording ? 'var(--studio-accent-recording)' : 'var(--studio-accent)',
+                color: isTestRecording ? 'white' : 'var(--studio-bg-0)',
+              }}
+              aria-label={isTestRecording ? 'Stop test recording' : 'Record test audio'}
+            >
+              {isTestRecording ? (
+                <>
+                  <Square size={18} strokeWidth={2.5} className="fill-current" />
+                  Stop Test
+                </>
+              ) : (
+                <>
+                  <Mic size={18} />
+                  Record Test
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleTestPlay}
+              disabled={!testBlob || isTestRecording}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all min-h-[44px] min-w-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: 'var(--studio-glass-strong)',
+                border: '1px solid var(--studio-border-apple)',
+                color: 'var(--studio-text-0)',
+              }}
+              aria-label="Play test recording"
+            >
+              <Play size={18} />
+              Play Test
+            </button>
+          </div>
+          {(isTestRecording || testBlob) && (
+            <p className="text-xs mt-2" style={{ color: 'var(--studio-text-2)' }}>
+              {isTestRecording ? 'Recording...' : 'Click Play Test to hear your recording.'}
+            </p>
+          )}
+        </div>
+
+        {/* Input level meter - when recording (main or test) */}
+        {(isRecording || isTestRecording) && (
           <div className="mb-8">
             <p className="text-xs font-medium tracking-widest uppercase mb-3" style={{ color: 'var(--studio-text-2)' }}>
               Input Level
@@ -303,7 +407,7 @@ export function AudioControlsPanel({
                 className="h-full rounded-full"
                 style={{ background: 'var(--studio-accent)' }}
                 initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, audioLevel * 150)}%` }}
+                animate={{ width: `${Math.min(100, (isTestRecording ? testAudioLevel : audioLevel) * 150)}%` }}
                 transition={{ duration: 0.05 }}
               />
             </div>

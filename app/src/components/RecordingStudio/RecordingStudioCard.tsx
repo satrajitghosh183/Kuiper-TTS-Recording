@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { PhraseDisplay } from './PhraseDisplay'
 import { StatusCheck } from './StatusCheck'
@@ -21,6 +22,11 @@ export interface RecordingStudioCardProps {
   onPrev: () => void
   onNext: () => void
   onRedo: () => void
+  onSave?: () => void
+  onPlay?: () => void
+  onPronounce?: () => void
+  onShowShortcuts?: () => void
+  hasUnsavedBlob?: boolean
   canPrev: boolean
   canNext: boolean
   disabled: boolean
@@ -42,19 +48,31 @@ export function RecordingStudioCard({
   onPrev,
   onNext,
   onRedo,
+  onSave,
+  onPlay,
+  onPronounce,
+  onShowShortcuts,
+  hasUnsavedBlob = false,
   canPrev,
   canNext,
   disabled,
 }: RecordingStudioCardProps) {
   const prefersReducedMotion = useReducedMotion()
+  const [cdSize, setCdSize] = useState(80)
+  useEffect(() => {
+    const update = () => setCdSize(Math.min(80, Math.max(48, window.innerWidth * 0.12)))
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
   return (
     <motion.div
-      className="relative z-10 w-full max-w-[560px] md:max-w-[640px] mx-auto"
+      className="relative z-10 w-full mx-auto"
+      style={{ maxWidth: 'min(100vw - 2rem, 640px)', transformPerspective: 800 }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       whileHover={!prefersReducedMotion ? { rotateX: 1, rotateY: -1, y: -2 } : undefined}
-      style={{ transformPerspective: 800 }}
     >
       <div className="studio-card">
         <StatusCheck recorded={hasRecording} />
@@ -72,7 +90,7 @@ export function RecordingStudioCard({
             isRecording={isRecording}
             onRecord={onRecord}
             disabled={disabled}
-            size={80}
+            size={cdSize}
           />
         </div>
 
@@ -89,10 +107,15 @@ export function RecordingStudioCard({
         {/* Transport controls */}
         <RecordingControls
           isRecording={isRecording}
+          hasUnsavedBlob={hasUnsavedBlob}
           onRecord={onRecord}
           onPrev={onPrev}
           onNext={onNext}
           onRedo={onRedo}
+          onSave={onSave}
+          onPlay={onPlay}
+          onPronounce={onPronounce}
+          onShowShortcuts={onShowShortcuts}
           canPrev={canPrev}
           canNext={canNext}
           disabled={disabled}

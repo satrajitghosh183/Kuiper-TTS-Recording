@@ -15,6 +15,9 @@ _backend_dir = _current_dir.parent
 if str(_backend_dir) not in sys.path:
     sys.path.insert(0, str(_backend_dir))
 
+import subprocess
+import tempfile
+
 from core.config import get_settings
 from core.audio_processor import analyze_wav_bytes
 
@@ -262,6 +265,45 @@ async def health_check():
         "version": "2.0.0",
         "environment": settings.environment,
     }
+
+
+# ============================================================================
+# TTS Pronunciation (espeak-ng)
+# ============================================================================
+
+@app.get("/api/tts/pronounce")
+async def tts_pronounce(text: str = "", lang: str = "en"):
+    """Synthesize text to speech using espeak-ng. Returns WAV audio."""
+    if not text or not text.strip():
+        raise HTTPException(400, "Text is required")
+    text_clean = text.strip()[:500]
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            out_path = f.name
+        try:
+            subprocess.run(
+                ["espeak-ng", "-w", out_path, "-v", f"{lang}", text_clean],
+                check=True,
+                capture_output=True,
+                timeout=10,
+            )
+            with open(out_path, "rb") as f:
+                audio_data = f.read()
+            return Response(
+                content=audio_data,
+                media_type="audio/wav",
+                headers={"Cache-Control": "public, max-age=3600"},
+            )
+        finally:
+            Path(out_path).unlink(missing_ok=True)
+    except subprocess.TimeoutExpired:
+        raise HTTPException(504, "TTS synthesis timed out")
+    except FileNotFoundError:
+        logger.warning("espeak-ng not installed, TTS unavailable")
+        raise HTTPException(503, "TTS (espeak-ng) is not available")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"espeak-ng failed: {e}")
+        raise HTTPException(500, "TTS synthesis failed")
 
 
 # ============================================================================
@@ -546,11 +588,14 @@ async def get_recording_progress(request: Request):
 
 
 @app.get("/api/recordings/{recording_id}/audio")
-async def get_recording_audio(recording_id: int):
-    """Stream recording audio."""
+async def get_recording_audio(recording_id: int, request: Request):
+    """Stream recording audio. Requires auth; user must own the recording."""
+    user_id = get_current_user_id(request)
     try:
         record = await db.get_recording(recording_id)
         if not record:
+            raise HTTPException(404, "Recording not found")
+        if str(record.get("user_id")) != user_id:
             raise HTTPException(404, "Recording not found")
 
         storage_path = record.get("storage_path")

@@ -157,6 +157,17 @@ export const api = {
     }
   },
 
+  /** Fetch TTS pronunciation audio for the given text. */
+  async pronounceText(text: string, lang = 'en'): Promise<Blob> {
+    const params = new URLSearchParams({ text, lang })
+    const response = await fetch(`${API_BASE}/tts/pronounce?${params}`)
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'TTS failed' }))
+      throw new APIError(err.detail || `HTTP ${response.status}`, response.status, err.detail)
+    }
+    return response.blob()
+  },
+
   // Scripts
   async listScripts(): Promise<Script[]> {
     return fetchAPI('/scripts')
@@ -224,11 +235,38 @@ export const api = {
     return `${API_BASE}/recordings/${recordingId}/audio`
   },
 
+  /** Fetch recording audio with auth. Returns blob for playback (required when endpoint needs auth). */
+  async fetchRecordingAudio(recordingId: number): Promise<Blob> {
+    const headers = await getAuthHeaders()
+    const response = await fetch(`${API_BASE}/recordings/${recordingId}/audio`, {
+      headers,
+      credentials: 'include',
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Failed to load audio' }))
+      throw new APIError(err.detail || `HTTP ${response.status}`, response.status, err.detail)
+    }
+    return response.blob()
+  },
+
   async deleteRecording(recordingId: number): Promise<{ success: boolean }> {
     return fetchAPI(`/recordings/${recordingId}`, {
       method: 'DELETE',
       auth: true,
     })
+  },
+
+  /** Download all user recordings as a ZIP. Fetches each and builds client-side. */
+  async downloadRecordingsAsZip(recordings: Array<{ id: number; script_name: string; line_index: number; phrase_text: string }>): Promise<Blob> {
+    const JSZip = (await import('jszip')).default
+    const zip = new JSZip()
+    for (const rec of recordings) {
+      const blob = await this.fetchRecordingAudio(rec.id)
+      const safeName = `${rec.script_name}_${String(rec.line_index + 1).padStart(4, '0')}.wav`
+        .replace(/[^a-zA-Z0-9_.-]/g, '_')
+      zip.file(safeName, blob)
+    }
+    return zip.generateAsync({ type: 'blob' })
   },
 
   // Admin (requires API key)

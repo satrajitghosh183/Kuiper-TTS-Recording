@@ -1,39 +1,88 @@
-import { SkipBack, SkipForward, RefreshCw } from 'lucide-react'
+import { SkipBack, SkipForward, RefreshCw, Play, Save, Volume2 } from 'lucide-react'
 import { LiquidMetalIcon } from '../LiquidMetalIcon'
 import { MicrophoneButton } from '../MicrophoneButton'
 
 interface RecordingControlsProps {
   isRecording: boolean
+  hasUnsavedBlob: boolean
   onRecord: () => void
   onPrev: () => void
   onNext: () => void
   onRedo: () => void
+  onSave?: () => void
+  onPlay?: () => void
+  onPronounce?: () => void
+  onShowShortcuts?: () => void
   canPrev: boolean
   canNext: boolean
   disabled: boolean
 }
 
 const btnClass =
-  'w-11 h-11 rounded-full flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)] focus-visible:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95'
+  'w-11 h-11 rounded-full flex items-center justify-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)] focus-visible:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95 min-w-[44px] min-h-[44px]'
 
 export function RecordingControls({
   isRecording,
+  hasUnsavedBlob,
   onRecord,
   onPrev,
   onNext,
   onRedo,
+  onSave,
+  onPlay,
+  onPronounce,
+  onShowShortcuts,
   canPrev,
   canNext,
   disabled,
 }: RecordingControlsProps) {
   return (
-    <div className="flex items-center justify-center gap-4 mt-6">
+    <div className="flex items-center justify-center gap-4 mt-6 flex-wrap">
+      {hasUnsavedBlob && onSave && (
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={disabled}
+          className={`${btnClass} text-[var(--studio-accent)]`}
+          aria-label="Save recording (S)"
+        >
+          <LiquidMetalIcon size={22}>
+            <Save size={22} strokeWidth={2} />
+          </LiquidMetalIcon>
+        </button>
+      )}
+      {onPlay && (
+        <button
+          type="button"
+          onClick={onPlay}
+          disabled={disabled}
+          className={`${btnClass} text-[var(--studio-text-0)]`}
+          aria-label="Play recording (P)"
+        >
+          <LiquidMetalIcon size={22}>
+            <Play size={22} strokeWidth={2} />
+          </LiquidMetalIcon>
+        </button>
+      )}
+      {onPronounce && (
+        <button
+          type="button"
+          onClick={onPronounce}
+          disabled={disabled}
+          className={`${btnClass} text-[var(--studio-text-0)]`}
+          aria-label="Hear pronunciation (T)"
+        >
+          <LiquidMetalIcon size={22}>
+            <Volume2 size={22} strokeWidth={2} />
+          </LiquidMetalIcon>
+        </button>
+      )}
       <button
         type="button"
         onClick={onRedo}
         disabled={disabled}
         className={`${btnClass} text-[var(--studio-accent)]`}
-        aria-label="Redo current phrase"
+        aria-label="Redo current phrase (R)"
       >
         <LiquidMetalIcon size={22}>
           <RefreshCw size={22} strokeWidth={2} />
@@ -69,6 +118,17 @@ export function RecordingControls({
           <SkipForward size={22} strokeWidth={2} />
         </LiquidMetalIcon>
       </button>
+
+      {onShowShortcuts && (
+        <button
+          type="button"
+          onClick={onShowShortcuts}
+          className={`${btnClass} text-[var(--studio-text-2)]`}
+          aria-label="Show keyboard shortcuts (?)"
+        >
+          <span className="text-lg font-semibold">?</span>
+        </button>
+      )}
 
       <button
         type="button"

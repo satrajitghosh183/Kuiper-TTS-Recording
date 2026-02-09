@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Play, Pause, Trash2, ChevronLeft } from 'lucide-react'
+import { Play, Pause, Trash2, ChevronLeft, Loader2, Download } from 'lucide-react'
 import { api, type Recording, formatDuration } from '../lib/api'
 import { LiquidMetalIcon } from '../components/LiquidMetalIcon'
 
@@ -15,7 +15,11 @@ export function Library() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentId, setCurrentId] = useState<number | null>(null)
-  const audioRefs = useRef<Map<number, HTMLAudioElement>>(new Map())
+  const [playError, setPlayError] = useState<string | null>(null)
+  const [loadingId, setLoadingId] = useState<number | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const objectUrlRef = useRef<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -44,26 +48,74 @@ export function Library() {
     load()
   }, [])
 
-  const handlePlayPause = (recordingId: number) => {
-    const map = audioRefs.current
-    const audio = map.get(recordingId)
-    if (!audio) return
-
-    // Pause any other playing audio
-    map.forEach((el, id) => {
-      if (id !== recordingId) {
-        el.pause()
-      }
-    })
-
-    if (audio.paused) {
-      audio.play().catch((err) => console.warn('Failed to play audio', err))
-      setCurrentId(recordingId)
-    } else {
-      audio.pause()
+  const handlePlayPause = useCallback(async (recordingId: number) => {
+    if (currentId === recordingId && audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause()
       setCurrentId(null)
+      return
     }
-  }
+
+    setPlayError(null)
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current)
+      objectUrlRef.current = null
+    }
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.src = ''
+    }
+
+    try {
+      setLoadingId(recordingId)
+      const blob = await api.fetchRecordingAudio(recordingId)
+      const url = URL.createObjectURL(blob)
+      objectUrlRef.current = url
+      if (audioRef.current) {
+        audioRef.current.src = url
+        await audioRef.current.play()
+        setCurrentId(recordingId)
+      }
+    } catch (err) {
+      console.warn('Playback failed:', err)
+      setPlayError(err instanceof Error ? err.message : 'Playback failed')
+    } finally {
+      setLoadingId(null)
+    }
+  }, [currentId])
+
+  const handleDownload = useCallback(async () => {
+    const all = grouped.flatMap((g) => g.recordings)
+    if (all.length === 0) return
+    setDownloading(true)
+    try {
+      const zip = await api.downloadRecordingsAsZip(
+        all.map((r) => ({
+          id: r.id,
+          script_name: r.script_name,
+          line_index: r.line_index,
+          phrase_text: r.phrase_text,
+        }))
+      )
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(zip)
+      a.download = `kuiper-recordings-${new Date().toISOString().slice(0, 10)}.zip`
+      a.click()
+      URL.revokeObjectURL(a.href)
+    } catch (err) {
+      console.error('Download failed:', err)
+      window.alert('Failed to download recordings. Please try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }, [grouped])
+
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current)
+      }
+    }
+  }, [])
 
   const handleDelete = async (recordingId: number) => {
     if (!window.confirm('Delete this recording? This cannot be undone.')) return
@@ -77,7 +129,10 @@ export function Library() {
           }))
           .filter((g) => g.recordings.length > 0),
       )
-      if (currentId === recordingId) setCurrentId(null)
+      if (currentId === recordingId) {
+        setCurrentId(null)
+        if (audioRef.current) audioRef.current.pause()
+      }
     } catch (err) {
       console.error('Failed to delete recording', err)
       window.alert('Failed to delete recording. Please try again.')
@@ -132,7 +187,7 @@ export function Library() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-semibold" style={{ color: 'var(--studio-text-0)' }}>
             Your Recordings
@@ -141,16 +196,54 @@ export function Library() {
             Browse, listen back, and manage your takes grouped by script.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/')}
-          className="px-3 py-2 rounded-xl bg-[var(--studio-glass)] border border-[var(--studio-border)] text-[var(--studio-text-1)] hover:text-[var(--studio-text-0)] hover:bg-[var(--studio-glass-strong)] transition-all flex items-center gap-2"
-        >
-          <ChevronLeft size={18} />
-          Home
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="px-4 py-2 rounded-xl bg-[var(--studio-accent)] text-[var(--studio-bg-0)] hover:brightness-110 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+            aria-label="Download my recordings"
+          >
+            {downloading ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Download size={18} />
+            )}
+            Download my recordings
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="px-3 py-2 rounded-xl bg-[var(--studio-glass)] border border-[var(--studio-border)] text-[var(--studio-text-1)] hover:text-[var(--studio-text-0)] hover:bg-[var(--studio-glass-strong)] transition-all flex items-center gap-2 min-h-[44px]"
+          >
+            <ChevronLeft size={18} />
+            Home
+          </button>
+        </div>
       </div>
 
+      {playError && (
+        <div
+          className="mb-4 px-4 py-3 rounded-xl flex items-center gap-3"
+          style={{
+            background: 'rgba(255, 69, 58, 0.15)',
+            border: '1px solid rgba(255, 69, 58, 0.3)',
+          }}
+        >
+          <p className="text-sm text-[var(--studio-accent-recording)]">{playError}</p>
+        </div>
+      )}
+
       <div className="space-y-10">
+        {/* Single shared audio element for playback */}
+        <audio
+          ref={audioRef}
+          onEnded={() => {
+            setCurrentId(null)
+            if (objectUrlRef.current) {
+              URL.revokeObjectURL(objectUrlRef.current)
+              objectUrlRef.current = null
+            }
+          }}
+        />
         {grouped.map((group) => (
           <section key={group.scriptName}>
             <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--studio-text-0)' }}>
@@ -182,7 +275,8 @@ export function Library() {
                       <button
                         type="button"
                         onClick={() => handlePlayPause(rec.id)}
-                        className="w-8 h-8 rounded-full flex items-center justify-center"
+                        disabled={loadingId === rec.id}
+                        className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center"
                         style={{
                           background: 'var(--studio-accent)',
                           color: 'var(--studio-bg-0)',
@@ -190,29 +284,24 @@ export function Library() {
                         aria-label={currentId === rec.id ? 'Pause' : 'Play'}
                       >
                         <LiquidMetalIcon size={16}>
-                          {currentId === rec.id ? <Pause size={16} /> : <Play size={16} />}
+                          {loadingId === rec.id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : currentId === rec.id ? (
+                            <Pause size={16} />
+                          ) : (
+                            <Play size={16} />
+                          )}
                         </LiquidMetalIcon>
                       </button>
                       <div className="w-24 h-1.5 rounded-full overflow-hidden bg-[var(--studio-border)]">
-                        {/* Simple progress bar driven by native controls visually; not bound to time for now */}
                         <div
-                          className="h-full rounded-full"
+                          className="h-full rounded-full transition-all duration-300"
                           style={{
                             width: currentId === rec.id ? '100%' : '0%',
                             background: 'var(--studio-accent)',
-                            transition: 'width 0.4s ease-out',
                           }}
                         />
                       </div>
-                      <audio
-                        ref={(el) => {
-                          const map = audioRefs.current
-                          if (el) map.set(rec.id, el)
-                          else map.delete(rec.id)
-                        }}
-                        src={api.getRecordingAudioUrl(rec.id)}
-                        onEnded={() => setCurrentId((id) => (id === rec.id ? null : id))}
-                      />
                     </div>
                     <button
                       type="button"

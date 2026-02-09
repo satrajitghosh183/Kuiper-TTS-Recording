@@ -1,0 +1,1547 @@
+The quick brown fox jumps over the lazy dog.
+We like an older style of furniture.
+It will take an hour to get there.
+A horse can run faster than a deer.
+An elephant walked into the river.
+A house on a hill can be seen for miles.
+An honest answer is better than a clever lie.
+He bought a large apple from the store.
+She took an umbrella because it might rain.
+A blue balloon floated above the crowd.
+An unusual sound came from the attic.
+Please measure the length and width of the table.
+The beige jacket matched the mauve scarf.
+An avalanche roared down the snowy mountain.
+The scientist examined the ancient fossil.
+The aroma of fresh coffee filled the air.
+We need an accurate estimate for the cost.
+An important event is scheduled for tonight.
+She adopted an orphaned puppy from the shelter.
+The wind blew an open door shut.
+An opportunity like this comes once in a lifetime.
+He heard an owl hoot in the forest.
+The judge gave an order to the court.
+We had an orange with breakfast.
+I saw an otter swimming in the lake.
+An artist painted the scene beautifully.
+He wrote an opera for the festival.
+I met an old friend at the market.
+They built an observation tower on the hill.
+You should add an onion to the soup.
+We heard an opera singer in the hall.
+She made an omelet for lunch.
+An octopus swam across the reef.
+I watched an old movie last night.
+An officer stopped the car.
+Please take an oath before the ceremony.
+We rented an office downtown.
+He offered an opinion on the matter.
+An olive tree grew in the garden.
+An honest man returned the wallet.
+We bought an ornament for the tree.
+An open window let in the breeze.
+She found an oyster shell on the beach.
+An old oak tree stood by the river.
+She saw an eagle flying overhead.
+We took an early flight to Boston.
+An eager student answered the question.
+They found an ancient coin buried in the sand.
+An angry customer complained loudly.
+He gave an awkward smile.
+She made an amazing discovery.
+They saw an alien in the movie.
+He read an article about space travel.
+We attended an annual festival.
+An architect designed the new building.
+An athlete won the gold medal.
+They hired an assistant to help with paperwork.
+An actor played the main character.
+She bought an antique chair.
+We enjoyed an afternoon at the park.
+An accident blocked the road.
+He made an announcement to the crowd.
+An agreement was signed by both parties.
+An attempt was made to fix the problem.
+An adventure awaited them in the mountains.
+She prepared an apple pie.
+An arrow hit the target.
+He told an amusing story.
+We heard an alarm in the distance.
+An allergy caused her to sneeze.
+An anchor held the boat in place.
+An angel appeared in the painting.
+We saw an ant crawling on the floor.
+An answer was given quickly.
+An area of land was fenced off.
+An army marched through the town.
+An artist painted a portrait.
+An astronaut traveled to the moon.
+An audience filled the theater.
+An author signed the book.
+An award was presented to the winner.
+An axe lay beside the tree stump.
+pat, pan, pepper, puppet, open
+bat, banner, ribbon, about, acrobat
+tap, tablet, guitar, attempt, rotate
+cat, candle, picnic, advocate, educate
+sing, ringing, stronger, singer, longing
+fun, funny, comfort, telephone, effort
+think, thermal, method, authority, sympathy
+see, season, receive, oversee, foresee
+zoo, zero, dazzle, cozy, dozen
+hat, happy, behave, inhale, perhaps
+chip, chatter, achieve, ketchup, wheelchair
+lip, listen, hollow, outline, tulip
+yes, yellow, beyond, canyon, yesterday
+see, ceiling, serene, preceding, disagree
+sit, symbol, liquid, imitate, physics
+say, sailing, delay, betray, convey
+bed, better, instead, confess, intend
+cat, cattle, matter, Saturday, gather
+father, drama, avocado, panorama, java
+now, louder, allowance, profound, somehow
+boy, boiling, enjoy, employ, decoy
+bird, turning, thermal, surgeon, furniture
+butter, letter, gatherer, computer, water
+Alpha.
+Beta.
+Gamma.
+Delta.
+Epsilon.
+Zeta.
+Eta.
+Theta.
+Iota.
+Kappa.
+Lambda.
+Mu.
+Nu.
+Xi.
+Omicron.
+Pi.
+Rho.
+Sigma.
+Tau.
+Upsilon.
+Phi.
+Chi.
+Psi.
+Omega.
+Aleph.
+alpha particle.
+beta decay.
+gamma ray.
+delta function.
+epsilon neighborhood.
+zeta function.
+eta meson.
+theta angle.
+iota subscript.
+kappa coefficient.
+lambda calculus.
+mu particle.
+nu neutrino.
+xi baryon.
+omicron variant.
+pi meson.
+rho meson.
+sigma algebra.
+tau lepton.
+upsilon meson.
+phi meson.
+chi squared test.
+psi wave function.
+omega baryon.
+aleph null.
+Mathematical Symbols
+Infinity.
+Approximately equal.
+Less than or equal.
+Greater than or equal.
+Not equal.
+Subset.
+Superset.
+Union.
+Intersection.
+Element of.
+For all.
+There exists.
+Therefore.
+Because.
+Implies.
+If and only if.
+Belongs to.
+Not belongs to.
+Empty set.
+Universal set.
+Complement.
+Symmetric difference.
+Cartesian product.
+Direct sum.
+Tensor product.
+Cross product.
+Dot product.
+Gradient.
+Divergence.
+Curl.
+Laplacian.
+Partial derivative.
+Total derivative.
+Definite integral.
+Indefinite integral.
+Contour integral.
+Line integral.
+Surface integral.
+Volume integral.
+Limit.
+Tends to.
+Approaches.
+Converges to.
+Diverges to.
+Asymptotically equal.
+Big O notation.
+Little o notation.
+Theta notation.
+Omega notation.
+Factorial.
+Double factorial.
+Binomial coefficient.
+Multinomial coefficient.
+Stirling number.
+Bell number.
+Catalan number.
+Fibonacci number.
+Prime number.
+Composite number.
+Perfect number.
+Abundant number.
+Deficient number.
+Amicable number.
+Mersenne prime.
+Fermat prime.
+Sophie Germain prime.
+Twin prime.
+Cousin prime.
+Integer.
+Float.
+Double.
+Boolean.
+String.
+Character.
+Array.
+Vector.
+List.
+Queue.
+Stack.
+Tree.
+Graph.
+Hash table.
+Dictionary.
+Set.
+Map.
+Tuple.
+Struct.
+Class.
+Interface.
+Function.
+Method.
+Procedure.
+Algorithm.
+Variable.
+Constant.
+Parameter.
+Argument.
+Return value.
+Void.
+Null.
+Undefined.
+True.
+False.
+If statement.
+Else statement.
+While loop.
+For loop.
+Do while loop.
+Switch statement.
+Case statement.
+Break statement.
+Continue statement.
+Return statement.
+Throw statement.
+Try block.
+Catch block.
+Finally block.
+Public.
+Private.
+Protected.
+Static.
+Final.
+Abstract.
+Virtual.
+Override.
+Interface.
+Implementation.
+Inheritance.
+Polymorphism.
+Encapsulation.
+Abstraction.
+Constructor.
+Destructor.
+Getter.
+Setter.
+Callback.
+Lambda.
+Closure.
+Recursion.
+Iteration.
+Pointer.
+Reference.
+Memory allocation.
+Garbage collection.
+Stack overflow.
+Buffer overflow.
+Race condition.
+Deadlock.
+Thread.
+Process.
+Synchronization.
+Mutex.
+Semaphore.
+Critical section.
+Atomic operation.
+Exception handling.
+Error handling.
+Debugging.
+Testing.
+Unit test.
+Integration test.
+Regression test.
+Code review.
+Version control.
+Git.
+Repository.
+Branch.
+Merge.
+Commit.
+Push.
+Pull.
+Fork.
+Clone.
+Flowchart.
+Pseudocode.
+Data structure.
+Algorithm complexity.
+Time complexity.
+Space complexity.
+Big O notation.
+Little o notation.
+Theta notation.
+Omega notation.
+Asymptotic analysis.
+Worst case.
+Best case.
+Average case.
+Linear time.
+Quadratic time.
+Logarithmic time.
+Exponential time.
+Constant time.
+Polynomial time.
+Factorial time.
+Binary search.
+Linear search.
+Bubble sort.
+Quick sort.
+Merge sort.
+Heap sort.
+Insertion sort.
+Selection sort.
+Shell sort.
+Radix sort.
+Counting sort.
+Bucket sort.
+Topological sort.
+Depth first search.
+Breadth first search.
+Dijkstra's algorithm.
+Bellman Ford algorithm.
+Floyd Warshall algorithm.
+Kruskal's algorithm.
+Prim's algorithm.
+Binary tree.
+Binary search tree.
+AVL tree.
+Red black tree.
+B tree.
+B plus tree.
+Heap.
+Min heap.
+Max heap.
+Priority queue.
+Disjoint set.
+Union find.
+Graph traversal.
+Tree traversal.
+Inorder traversal.
+Preorder traversal.
+Postorder traversal.
+Level order traversal.
+Dynamic programming.
+Greedy algorithm.
+Divide and conquer.
+Backtracking.
+Branch and bound.
+Simulated annealing.
+Genetic algorithm.
+Neural network.
+Machine learning.
+Deep learning.
+Artificial intelligence.
+Natural language processing.
+Computer vision.
+Data mining.
+Database.
+Relational database.
+NoSQL database.
+SQL query.
+Index.
+Primary key.
+Foreign key.
+Transaction.
+ACID properties.
+Normalization.
+Denormalization.
+Cache.
+Buffer.
+Virtual memory.
+Paging.
+Swapping.
+Interrupt.
+System call.
+Kernel.
+Operating system.
+Process scheduling.
+Memory management.
+File system.
+Network protocol.
+TCP.
+UDP.
+HTTP.
+HTTPS.
+FTP.
+SSH.
+SSL.
+TLS.
+DNS.
+DHCP.
+ARP.
+ICMP.
+IP address.
+MAC address.
+Subnet mask.
+Gateway.
+Router.
+Switch.
+Hub.
+Firewall.
+Proxy server.
+Load balancer.
+Virtual machine.
+Container.
+Docker.
+Kubernetes.
+Microservices.
+API.
+REST API.
+GraphQL.
+JSON.
+XML.
+YAML.
+CSV.
+Configuration file.
+Environment variable.
+Log file.
+Backup.
+Archive.
+Compression.
+Encryption.
+Decryption.
+Hash function.
+Digital signature.
+Certificate.
+Public key.
+Private key.
+Symmetric encryption.
+Asymmetric encryption.
+Blockchain.
+Cryptocurrency.
+Bitcoin.
+Ethereum.
+Smart contract.
+Distributed system.
+Cloud computing.
+Serverless computing.
+Edge computing.
+Internet of things.
+Embedded system.
+Real time system.
+Firmware.
+Device driver.
+Kernel module.
+System call.
+Interrupt handler.
+Memory leak.
+Buffer overflow.
+Stack overflow.
+Heap overflow.
+Race condition.
+Deadlock.
+Livelock.
+Starvation.
+Priority inversion.
+Context switch.
+Process creation.
+Thread creation.
+Fork.
+Exec.
+Wait.
+Signal.
+Pipe.
+Named pipe.
+Socket.
+Shared memory.
+Message queue.
+Semaphore.
+Mutex.
+Condition variable.
+Barrier.
+Spinlock.
+Read write lock.
+Reader writer lock.
+Et cetera.
+Per se.
+Ad hoc.
+Ad infinitum.
+Ad nauseam.
+Pro bono.
+Pro forma.
+Quid pro quo.
+I.e.
+E.g.
+Vs.
+Cf.
+Ibid.
+Meter squared.
+Meter cubed.
+Kilogram per meter cubed.
+Mole per liter.
+Joule per kelvin.
+Watt per meter squared.
+Newton per meter squared.
+Pascal second.
+Square meter.
+Cubic meter.
+Square centimeter.
+Cubic centimeter.
+Square millimeter.
+Cubic millimeter.
+Square kilometer.
+Cubic kilometer.
+Square inch.
+Cubic inch.
+Square foot.
+Cubic foot.
+Square yard.
+Cubic yard.
+Square mile.
+Cubic mile.
+Gallon per minute.
+Liter per second.
+Meter per second squared.
+Kilometer per hour squared.
+Degree per second.
+Radian per second.
+Revolutions per minute.
+Hertz squared.
+Decibel per meter.
+Bel per kilometer.
+Neper per meter.
+Mole per cubic meter.
+Molecule per cubic centimeter.
+Atom per cubic nanometer.
+Electron per cubic meter.
+Proton per cubic meter.
+Neutron per cubic meter.
+Photon per second.
+Photon per square meter per second.
+Watt per steradian.
+Candela per square meter.
+Lux per square meter.
+Lumen per square meter.
+Becquerel per cubic meter.
+Gray per second.
+Sievert per hour.
+Curie per liter.
+Rutherford per cubic meter.
+## Foreign Terms
+Raison d'être.
+Déjà vu.
+Coup d'état.
+Fait accompli.
+Hors d'œuvre.
+C'est la vie.
+Bon appétit.
+Au revoir.
+À bientôt.
+À la carte.
+À la mode.
+À propos.
+Carte blanche.
+Coup de grâce.
+Crème de la crème.
+Esprit de corps.
+Faux pas.
+Je ne sais quoi.
+Laissez faire.
+Mise en scène.
+Noblesse oblige.
+Non sequitur.
+Par excellence.
+Piece de resistance.
+Plus ça change.
+Rendez vous.
+Savoir faire.
+Tête à tête.
+Tour de force.
+Vis à vis.
+Voilà.
+Carpe diem.
+Caveat emptor.
+Deus ex machina.
+E pluribus unum.
+Et tu Brute.
+Ex libris.
+Ex officio.
+Ex post facto.
+Habeas corpus.
+In absentia.
+In camera.
+In extremis.
+In flagrante delicto.
+In loco parentis.
+In medias res.
+In memoriam.
+In situ.
+In toto.
+Ipso facto.
+Lapsus linguae.
+Mea culpa.
+Modus operandi.
+Modus vivendi.
+Non compos mentis.
+Pax vobiscum.
+Per capita.
+Per diem.
+Per se.
+Persona non grata.
+Prima facie.
+Pro bono.
+Pro forma.
+Pro rata.
+Quid pro quo.
+Quo vadis.
+Requiescat in pace.
+Sic transit gloria mundi.
+Sine qua non.
+Status quo.
+Sub rosa.
+Sui generis.
+Tabula rasa.
+Tempus fugit.
+Terra firma.
+Veni vidi vici.
+Verbatim.
+Vice versa.
+Vox populi.
+Gung ho.
+Kung fu.
+Tai chi.
+Feng shui.
+Yin yang.
+Karaoke.
+Sushi.
+Sake.
+Kimono.
+Origami.
+Haiku.
+Zen.
+Samurai.
+Ninja.
+Shogun.
+Emperor.
+Daimyo.
+Ronin.
+Bushido.
+Seppuku.
+Hara kiri.
+Kamikaze.
+Tsunami.
+Typhoon.
+Karaoke.
+Manga.
+Anime.
+Otaku.
+Cosplay.
+Kawaii.
+Senpai.
+Kohai.
+Sensei.
+Dojo.
+Tatami.
+Futon.
+Bento.
+Tempura.
+Teriyaki.
+Wasabi.
+Miso.
+Tofu.
+Sashimi.
+Ramen.
+Udon.
+Soba.
+Matcha.
+Sake.
+Shiitake.
+Enoki.
+Maitake.
+Reishi.
+Chaga.
+Cordyceps.
+Lion's mane.
+Turkey tail.
+Oyster mushroom.
+Portobello.
+Chanterelle.
+Morel.
+Truffle.
+Porcini.
+Crimini.
+Albert Einstein.
+Isaac Newton.
+Galileo Galilei.
+Nikola Tesla.
+Michael Faraday.
+James Clerk Maxwell.
+Marie Curie.
+Pierre Curie.
+Niels Bohr.
+Werner Heisenberg.
+Max Planck.
+Erwin Schrödinger.
+Paul Dirac.
+Richard Feynman.
+Enrico Fermi.
+Wolfgang Pauli.
+Louis de Broglie.
+Carl Friedrich Gauss.
+Leonhard Euler.
+Joseph Fourier.
+Pierre-Simon Laplace.
+Blaise Pascal.
+Gottfried Wilhelm Leibniz.
+Alan Turing.
+John von Neumann.
+Alessandro Volta.
+André-Marie Ampère.
+Georg Ohm.
+Heinrich Hertz.
+Daniel Bernoulli.
+Guglielmo Marconi.
+Dmitri Mendeleev.
+Antoine Lavoisier.
+Robert Boyle.
+Linus Pauling.
+Rosalind Franklin.
+Francis Crick.
+James Watson.
+Gregor Mendel.
+Charles Darwin.
+Alfred Russel Wallace.
+Carl Linnaeus.
+Barbara McClintock.
+Louis Pasteur.
+Alexander Fleming.
+Jonas Salk.
+Rachel Carson.
+Carl Sagan.
+Jane Goodall.
+Edwin Hubble.
+Vera Rubin.
+Marie Curie
+Rosalind Franklin
+Gregor Mendel
+Carl Sagan
+Jane Goodall
+Richard Feynman
+Ada Lovelace
+Alan Turing
+Stephen Hawking
+Niels Bohr
+Max Planck
+Werner Heisenberg
+Galileo Galilei
+Isaac Newton
+Nikola Tesla
+Michael Faraday
+James Clerk Maxwell
+Enrico Fermi
+Louis Pasteur
+Alexander Fleming
+Jonas Salk
+Rachel Carson
+Barbara McClintock
+Edwin Hubble
+Vera Rubin
+Leonardo da Vinci
+Thomas Edison
+Alexander the Great
+Genghis Khan
+Julius Caesar
+Frederick the Great
+Napoleon Bonaparte
+Adolf Hitler
+Joseph Stalin
+Kemal Attaturk
+Winston Churchill
+Franklin D. Roosevelt
+Margaret Thatcher
+Theodore Roosevelt
+Abraham Lincoln
+George Washington
+Benjamin Franklin
+John F. Kennedy
+Martin Luther King Jr.
+Mahatma Gandhi
+Nelson Mandela
+Che Guevara
+Fidel Castro
+Vladimir Lenin
+Karl Marx
+Adam Smith
+Jean-Jacques Rousseau
+Thomas Hobbes
+Confucius
+Socrates
+Plato
+Aristotle
+Immanuel Kant
+Friedrich Nietzsche
+Sigmund Freud
+Carl Jung
+Marie Antoinette
+Queen Elizabeth II
+King Henry VIII
+Cleopatra
+Joan of Arc
+Catherine the Great
+Elizabeth I
+Abdus Salam.
+Maria Goeppert Mayer.
+John Archibald Wheeler.
+Freeman Dyson.
+Steven Weinberg.
+Murray Gell-Mann.
+Kip Thorne.
+Jocelyn Bell Burnell.
+Evangelista Torricelli.
+Tycho Brahe.
+Ibn al-Haytham.
+Subrahmanyan Chandrasekhar.
+Hans Bethe.
+Arthur Eddington.
+Max Born.
+Henri Becquerel.
+Robert Bunsen.
+Fritz Haber.
+Ahmed Zewail.
+Glenn T. Seaborg.
+Dorothy Crowfoot Hodgkin.
+Humphry Davy.
+Svante Arrhenius.
+Gilbert N. Lewis.
+Irène Joliot-Curie.
+George de Hevesy.
+Justus von Liebig.
+Jean-Marie Lehn.
+Elias James Corey.
+Harold Kroto.
+Richard R. Ernst.
+Frances Arnold.
+Craig Venter.
+Paul Ehrlich.
+Thomas Hunt Morgan.
+Jean-Baptiste Lamarck.
+Richard Dawkins.
+Francis Collins.
+Rita Levi-Montalcini.
+Sydney Brenner.
+Har Gobind Khorana.
+Max Perutz.
+Emil von Behring.
+Joshua Lederberg.
+Luc Montagnier.
+François Jacob.
+Kurt Gödel.
+Emmy Noether.
+Henri Poincaré.
+George Boole.
+Srinivasa Ramanujan.
+Benoit Mandelbrot.
+David Hilbert.
+Andrey Kolmogorov.
+John Nash.
+Paul Erdős.
+Alonzo Church.
+Wernher von Braun.
+Isambard Kingdom Brunel.
+Hedy Lamarr.
+Philo Farnsworth.
+Howard Hughes.
+Jacques Cousteau.
+Robert H. Goddard.
+Frank Whittle.
+Gustave Eiffel.
+John Logie Baird.
+Burt Rutan.
+Ferdinand von Zeppelin.
+Roald Amundsen.
+Ernest Shackleton.
+James Watt.
+Trofim Lysenko.
+Edward Teller.
+Andrei Sakharov.
+Enrico Caruso.
+J. Robert Oppenheimer.
+Hypatia.
+Archimedes.
+Pythagoras.
+Euclid.
+Avicenna.
+Omar Khayyam.
+Al-Khwarizmi.
+al-Biruni.
+Chien-Shiung Wu.
+Chen-Ning Yang.
+Tsung-Dao Lee.
+Hideki Yukawa.
+Yoichiro Nambu.
+Isidor Isaac Rabi.
+Lev Landau.
+Pyotr Kapitsa.
+Ilya Prigogine.
+Claude Shannon.
+Norbert Wiener.
+John McCarthy.
+Marvin Minsky.
+Herbert Simon.
+Allen Newell.
+Edsger Dijkstra.
+Donald Knuth.
+Tony Hoare.
+Niklaus Wirth.
+Dennis Ritchie.
+Ken Thompson.
+Brian Kernighan.
+Bjarne Stroustrup.
+James Gosling.
+Guido van Rossum.
+Yukihiro Matsumoto.
+Brendan Eich.
+Tim Berners Lee.
+Vint Cerf.
+Bob Kahn.
+Robert Metcalfe.
+Douglas Engelbart.
+Alan Kay.
+Ivan Sutherland.
+Ed Catmull.
+Patrick Hanrahan.
+Andrew Tanenbaum.
+Linus Torvalds.
+Richard Stallman.
+Eric Raymond.
+Larry Wall.
+Rasmus Lerdorf.
+Anders Hejlsberg.
+Martin Odersky.
+Rich Hickey.
+Yehuda Katz.
+David Heinemeier Hansson.
+Grace Hopper.
+Ada Lovelace.
+Charles Babbage.
+John von Neumann.
+Alan Turing.
+Claude Shannon.
+Norbert Wiener.
+John McCarthy.
+Marvin Minsky.
+Herbert Simon.
+Allen Newell.
+Edsger Dijkstra.
+Donald Knuth.
+Tony Hoare.
+Niklaus Wirth.
+Dennis Ritchie.
+Ken Thompson.
+Brian Kernighan.
+Bjarne Stroustrup.
+James Gosling.
+Guido van Rossum.
+Yukihiro Matsumoto.
+Brendan Eich.
+Tim Berners Lee.
+Vint Cerf.
+Bob Kahn.
+Robert Metcalfe.
+Douglas Engelbart.
+Alan Kay.
+Ivan Sutherland.
+Ed Catmull.
+Patrick Hanrahan.
+Andrew Tanenbaum.
+Linus Torvalds.
+Richard Stallman.
+Eric Raymond.
+Larry Wall.
+Rasmus Lerdorf.
+Anders Hejlsberg.
+Martin Odersky.
+Rich Hickey.
+Yehuda Katz.
+David Heinemeier Hansson.
+Grace Hopper.
+Ada Lovelace.
+Charles Babbage.
+John von Neumann.
+Alan Turing.
+Thomas Edison.
+Nikola Tesla.
+Alexander Graham Bell.
+Guglielmo Marconi.
+Lee de Forest.
+Edwin Armstrong.
+John Bardeen.
+Walter Brattain.
+William Shockley.
+Jack Kilby.
+Robert Noyce.
+Gordon Moore.
+Andy Grove.
+Henry Ford.
+Rudolf Diesel.
+Nikolaus Otto.
+Gottlieb Daimler.
+Karl Benz.
+Ferdinand Porsche.
+Enzo Ferrari.
+Soichiro Honda.
+Kiichiro Toyoda.
+Akio Morita.
+Steve Jobs.
+Steve Wozniak.
+Bill Gates.
+Paul Allen.
+Larry Page.
+Sergey Brin.
+Mark Zuckerberg.
+Jeff Bezos.
+Elon Musk.
+Werner von Braun.
+Sergei Korolev.
+Konstantin Tsiolkovsky.
+Robert Goddard.
+Hermann Oberth.
+Yuri Gagarin.
+Neil Armstrong.
+Buzz Aldrin.
+Michael Collins.
+John Glenn.
+Alan Shepard.
+Valentina Tereshkova.
+Sally Ride.
+Mae Jemison.
+Eileen Collins.
+Peggy Whitson.
+Christa McAuliffe.
+Kalpana Chawla.
+Sunita Williams.
+Yukihiro Matsumoto.
+Brendan Eich.
+Tim Berners Lee.
+Vint Cerf.
+Bob Kahn.
+Robert Metcalfe.
+Douglas Engelbart.
+Alan Kay.
+Ivan Sutherland.
+Ed Catmull.
+Patrick Hanrahan.
+Andrew Tanenbaum.
+Linus Torvalds.
+Richard Stallman.
+Eric Raymond.
+Larry Wall.
+Rasmus Lerdorf.
+Anders Hejlsberg.
+Martin Odersky.
+Rich Hickey.
+Yehuda Katz.
+David Heinemeier Hansson.
+Grace Hopper
+Ada Lovelace.
+Charles Babbage.
+John von Neumann.
+Alan Turing.
+The periodic table of the elements.
+Hydrogen, Helium, Lithium, Beryllium.
+Boron, Carbon, Nitrogen, Oxygen.
+Fluorine, Neon, Sodium, Magnesium.
+Aluminum, Silicon, Phosphorus, Sulfur.
+Chlorine, Argon, Potassium, Calcium.
+Iron, Copper, Zinc, Silver.
+Gold, Mercury, Lead,
+Uranium,Plutonium,Thorium.
+Molecule, Atom, Electron, Proton and Neutron.
+Isotope.
+Covalent bond, Ionic bond, Metallic bond, Hydrogen bond.
+Atomic mass, Atomic number, Molar mass, Mole.
+Avogadro's number.
+Chemical reaction, Catalyst, Oxidation, Reduction.
+Oxidation number, pH scale, Acid and Base.
+Salt.
+Neutralization.
+Solution.
+Solvent.
+Solute.
+Concentration.
+Dilution.
+Precipitate.
+Evaporation.
+Condensation.
+Sublimation.
+Combustion.
+Photosynthesis.
+Respiration.
+DNA.
+RNA.
+Nucleotide.
+Adenine.
+Thymine.
+Guanine.
+Cytosine.
+Uracil.
+Gene.
+Chromosome.
+Genome.
+Protein.
+Amino acid.
+Enzyme.
+Hormone.
+Cell membrane.
+Nucleus.
+Mitochondrion.
+Ribosome.
+Chloroplast.
+Endoplasmic reticulum.
+Golgi apparatus.
+Cytoplasm.
+Cell wall.
+Bacterium.
+Virus.
+Fungus.
+Plant cell.
+Animal cell.
+Prokaryote.
+Eukaryote.
+Binomial nomenclature.
+Homo sapiens.
+Pan troglodytes.
+Escherichia coli.
+Saccharomyces cerevisiae.
+Arabidopsis thaliana.
+Mus musculus.
+Canis lupus familiaris.
+Felis catus.
+atom
+molecule
+element
+compound
+reaction
+equilibrium
+acid
+base
+neutral
+oxidation
+reduction
+catalyst
+enzyme
+protein
+lipid
+carbohydrate
+nucleotide
+DNA
+RNA
+cell
+membrane
+nucleus
+mitochondrion
+chloroplast
+photosynthesis
+respiration
+metabolism
+osmosis
+diffusion
+gene
+allele
+chromosome
+mutation
+isotope
+valence
+ionic bond
+covalent bond
+hydrogen bond
+pH
+buffer
+solvent
+solute
+plasma membrane
+endoplasmic reticulum
+Golgi apparatus
+ribosome
+lysosome
+vacuole
+cytoplasm
+cytoskeleton
+microtubule
+microfilament
+meiosis
+mitosis
+alkane
+alkene
+alkyne
+aromatic ring
+benzene ring
+phenyl group
+methyl group
+ethyl group
+propyl group
+butyl group
+functional group
+hydroxyl group
+alcohol
+ether
+aldehyde
+ketone
+carboxylic acid
+ester
+amide
+amine
+nitrile
+thiol
+sulfide
+disulfide bond
+halide
+fluoride
+chloride
+bromide
+iodide
+alkyl halide
+alkyl fluoride
+alkyl chloride
+alkyl bromide
+alkyl iodide
+alkene double bond
+alkyne triple bond
+aromatic compound
+phenol
+acetyl group
+carbonyl group
+carboxyl group
+acid chloride
+anhydride
+imine
+enamine
+quinone
+lactone
+lactam
+isomer
+cis isomer
+trans isomer
+chiral center
+stereoisomer
+enantiomer
+diastereomer
+racemic mixture
+nucleophile
+electrophile
+radical
+carbocation
+carbanion
+resonance structure
+conjugated system
+aromaticity
+polymers
+monomer
+polymerization
+addition reaction
+elimination reaction
+substitution reaction
+oxidation reaction
+reduction reaction
+hydrolysis
+condensation reaction
+esterification
+saponification
+Enzyme kinetics.
+Michaelis Menten kinetics.
+Michaelis constant.
+Km.
+Vmax.
+Maximum velocity.
+Turnover number.
+Kcat.
+Allosteric regulation.
+Allosteric enzyme.
+Allosteric site.
+Allosteric inhibitor.
+Allosteric activator.
+Feedback inhibition.
+Feedback regulation.
+Negative feedback.
+Positive feedback.
+End product inhibition.
+Competitive inhibition.
+Non competitive inhibition.
+Uncompetitive inhibition.
+Mixed inhibition.
+Irreversible inhibition.
+Reversible inhibition.
+Suicide inhibitor.
+Transition state analog.
+Enzyme substrate complex.
+ES complex.
+Enzyme product complex.
+EP complex.
+Steady state kinetics.
+Pre steady state kinetics.
+Rapid equilibrium.
+Briggs Haldane kinetics.
+Lineweaver Burk plot.
+Double reciprocal plot.
+Eadie Hofstee plot.
+Hanes Woolf plot.
+Dixon plot.
+Cornish Bowden plot.
+Eisenthal plot.
+Direct linear plot.
+Hill equation.
+Hill coefficient.
+Cooperativity.
+Positive cooperativity.
+Negative cooperativity.
+Hemoglobin.
+Myoglobin.
+Oxygen binding.
+Oxygen dissociation curve.
+Bohr effect.
+Haldane effect.
+2,3 BPG.
+2,3 Bisphosphoglycerate.
+PCR.
+Polymerase chain reaction.
+Real time PCR.
+qPCR.
+Quantitative PCR.
+Reverse transcriptase PCR.
+RT PCR.
+Nested PCR.
+Multiplex PCR.
+Digital PCR.
+dPCR.
+CRISPR.
+Clustered regularly interspaced short palindromic repeats.
+CRISPR Cas9.
+CRISPR Cas12.
+CRISPR Cas13.
+Gene editing.
+Genome editing.
+Gene knockout.
+Gene knockdown.
+Gene silencing.
+RNA interference.
+RNAi.
+Small interfering RNA.
+siRNA.
+MicroRNA.
+miRNA.
+Short hairpin RNA.
+shRNA.
+Recombinant DNA.
+Genetic engineering.
+Plasmid.
+Vector.
+Expression vector.
+Cloning vector.
+Shuttle vector.
+Cosmid.
+Bacterial artificial chromosome.
+BAC.
+Yeast artificial chromosome.
+YAC.
+Human artificial chromosome.
+HAC.
+Restriction enzyme.
+Restriction endonuclease.
+Sticky end.
+Blunt end.
+Ligase.
+DNA ligase.
+T4 DNA ligase.
+Transformation.
+Transfection.
+Transduction.
+Electroporation.
+Lipofection.
+Calcium phosphate precipitation.
+Viral vector.
+Adenovirus.
+Retrovirus.
+Lentivirus.
+Adeno associated virus.
+AAV.
+Herpes simplex virus.
+HSV.
+Apoptosis.
+Programmed cell death.
+Necrosis.
+Autophagy.
+Autophagosome.
+Lysosome.
+Endocytosis.
+Phagocytosis.
+Pinocytosis.
+Receptor mediated endocytosis.
+Clathrin coated pit.
+Caveolae.
+Exocytosis.
+Constitutive secretion.
+Regulated secretion.
+Golgi apparatus.
+Endoplasmic reticulum.
+ER.
+Rough ER.
+Smooth ER.
+Nuclear envelope.
+Nuclear pore.
+Nuclear lamina.
+Chromatin.
+Euchromatin.
+Heterochromatin.
+Histone.
+Nucleosome.
+Chromosome.
+Telomere.
+Centromere.
+Kinetochore.
+Spindle apparatus.
+Microtubule.
+Microfilament.
+Intermediate filament.
+Cytoskeleton.
+Actin.
+Myosin.
+Tubulin.
+Kinesin.
+Dynein.
+Motor protein.
+Cytokinesis.
+Mitosis.
+Meiosis.
+Prophase.
+Metaphase.
+Anaphase.
+Telophase.
+Interphase.
+G1 phase.
+S phase.
+G2 phase.
+M phase.
+Checkpoint.
+G1 checkpoint.
+G2 checkpoint.
+M checkpoint.
+Spindle checkpoint.
+DNA damage checkpoint.
+P53.
+Tumor suppressor.
+Oncogene.
+Proto oncogene.
+Ras.
+Myc.
+Fos.
+Jun.
+Src.
+Abl.
+Bcr.
+Bcr Abl.
+Philadelphia chromosome.
+Chronic myeloid leukemia.
+CML.
+Acute lymphoblastic leukemia.
+ALL.
+Acute myeloid leukemia.
+AML.
+Chronic lymphocytic leukemia.
+CLL.
+Hodgkin lymphoma.
+Non Hodgkin lymphoma.
+Multiple myeloma.
+Myelodysplastic syndrome.
+MDS.
+Myeloproliferative neoplasm.
+MPN.
+Polycythemia vera.
+Essential thrombocythemia.
+Primary myelofibrosis.
+Chronic neutrophilic leukemia.
+Chronic eosinophilic leukemia.
+Mastocytosis.
+Systemic mastocytosis.
+Cutaneous mastocytosis.
+Mast cell leukemia.
+Mast cell sarcoma.
+Extramedullary mastocytoma.
+Mastocytoma.
+Urticaria pigmentosa.
+Telangiectasia macularis eruptiva perstans.
+TMEP.
+Diffuse cutaneous mastocytosis.
+DCM.
+Bullous mastocytosis.
+Mastocytosis in the skin.
+MIS.
+Indolent systemic mastocytosis.
+ISM.
+Smoldering systemic mastocytosis.
+SSM.
+Aggressive systemic mastocytosis.
+ASM.
+Systemic mastocytosis with associated hematologic neoplasm.
+SM AHN.
+Mast cell leukemia.
+MCL.
+Mast cell sarcoma.
+MCS.
+Extramedullary mastocytoma.
+EMM.

@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Loader2, AlertCircle, LayoutGrid } from 'lucide-react'
 import { LiquidMetalIcon } from '../components/LiquidMetalIcon'
 import { RecordingStudioCard, BackgroundScene, AudioControlsPanel } from '../components/RecordingStudio'
+import { KeyboardShortcuts } from '../components/KeyboardShortcuts'
 import { api, type Recording as RecordingType, type Script } from '../lib/api'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
+import { useScreenReader } from '../hooks/useScreenReader'
+import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
 
 interface RecordingEntry {
   id?: number
@@ -16,6 +19,7 @@ interface RecordingEntry {
 export function Record() {
   const navigate = useNavigate()
 
+  const SESSION_KEY = 'kuiper_session_state'
   const [scripts, setScripts] = useState<Script[]>([])
   const [currentScriptIndex, setCurrentScriptIndex] = useState(0)
   const [currentLineIndex, setCurrentLineIndex] = useState(0)
@@ -23,8 +27,11 @@ export function Record() {
   const [isLoadingScripts, setIsLoadingScripts] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
-
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
   const [showAudioControls, setShowAudioControls] = useState(false)
+  const audioPlaybackRef = useRef<HTMLAudioElement | null>(null)
+  const { announce } = useScreenReader()
+  const { settings: accessibilitySettings } = useAccessibilitySettingsContext()
   const [audioGain, setAudioGain] = useState(() => {
     const v = localStorage.getItem('kuiper_audio_gain')
     return v ? Math.max(20, Math.min(200, parseInt(v, 10))) : 100
@@ -42,6 +49,15 @@ export function Record() {
   )
 
   const saveSettingsTimeoutRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    const state = {
+      scriptIndex: currentScriptIndex,
+      lineIndex: currentLineIndex,
+      timestamp: Date.now(),
+    }
+    localStorage.setItem(SESSION_KEY, JSON.stringify(state))
+  }, [currentScriptIndex, currentLineIndex])
 
   useEffect(() => {
     localStorage.setItem('kuiper_audio_gain', String(audioGain))
@@ -106,6 +122,21 @@ export function Record() {
           setError('No text scripts found. An admin needs to add scripts first.')
         } else {
           setScripts(loadedScripts)
+          try {
+            const raw = localStorage.getItem(SESSION_KEY)
+            if (raw) {
+              const s = JSON.parse(raw) as { scriptIndex?: number; lineIndex?: number; timestamp?: number }
+              if (s.timestamp && Date.now() - s.timestamp < 24 * 60 * 60 * 1000) {
+                const si = Math.max(0, Math.min(s.scriptIndex ?? 0, loadedScripts.length - 1))
+                const script = loadedScripts[si]
+                const li = script ? Math.max(0, Math.min(s.lineIndex ?? 0, script.lines.length - 1)) : 0
+                setCurrentScriptIndex(si)
+                setCurrentLineIndex(li)
+              }
+            }
+          } catch {
+            // ignore restore errors
+          }
         }
       } catch (err) {
         console.error('Failed to load scripts:', err)
@@ -150,61 +181,53 @@ export function Record() {
     isRecording,
     audioLevel,
     duration,
+    audioBlob,
     startRecording,
     stopRecording,
     clearRecording,
   } = useAudioRecorder({
     processorSettings: { gain: audioGain, bass: audioBass, treble: audioTreble },
-    onDataAvailable: async (blob) => {
-      if (!currentScript) return
-      try {
-        setSaveError(null)
-        const result = await api.saveRecording(
-          blob,
-          currentScript.id,
-          currentLineIndex,
-          currentLine
-        )
-        if (result.success) {
-          setRecordings(prev =>
-            new Map(prev).set(recordingKey, {
-              id: result.id,
-              text: currentLine,
-              duration_seconds: result.duration_seconds,
-              is_valid: result.is_valid,
-            })
-          )
-        } else {
-          setSaveError(result.error || 'Failed to save recording')
-        }
-      } catch (err) {
-        console.error('Failed to save recording:', err)
-        setSaveError(err instanceof Error ? err.message : 'Failed to save recording')
-      }
-    },
+    autoSave: false,
   })
 
   const handleRecord = useCallback(async () => {
     if (isRecording) {
       stopRecording()
+      announce('Recording stopped.', 'polite')
     } else {
       clearRecording()
       setSaveError(null)
       await startRecording(audioDeviceId ?? undefined)
+      announce('Recording started. Speak now.', 'polite')
     }
-  }, [isRecording, stopRecording, clearRecording, startRecording, audioDeviceId])
+  }, [isRecording, stopRecording, clearRecording, startRecording, audioDeviceId, announce])
 
   const handleNext = useCallback(() => {
     if (!currentScript) return
-    if (currentLineIndex < currentScript.lines.length - 1) {
-      setCurrentLineIndex(prev => prev + 1)
-    } else if (currentScriptIndex < scripts.length - 1) {
-      setCurrentScriptIndex(prev => prev + 1)
-      setCurrentLineIndex(0)
+    const advance = () => {
+      if (currentLineIndex < currentScript.lines.length - 1) {
+        let next = currentLineIndex + 1
+        while (next < currentScript.lines.length && recordings.has(`${currentScript.id}_${next}`)) {
+          next++
+        }
+        setCurrentLineIndex(next)
+      } else if (currentScriptIndex < scripts.length - 1) {
+        const nextScriptIdx = currentScriptIndex + 1
+        const nextScript = scripts[nextScriptIdx]
+        setCurrentScriptIndex(nextScriptIdx)
+        let nextLine = 0
+        if (nextScript) {
+          while (nextLine < nextScript.lines.length && recordings.has(`${nextScript.id}_${nextLine}`)) {
+            nextLine++
+          }
+        }
+        setCurrentLineIndex(nextLine)
+      }
     }
+    advance()
     clearRecording()
     setSaveError(null)
-  }, [currentScript, currentLineIndex, currentScriptIndex, scripts.length, clearRecording])
+  }, [currentScript, currentLineIndex, currentScriptIndex, scripts, recordings, clearRecording])
 
   const handlePrev = useCallback(() => {
     if (!currentScript) return
@@ -228,12 +251,132 @@ export function Record() {
     setSaveError(null)
   }, [recordingKey, clearRecording])
 
+  const handleSave = useCallback(async () => {
+    if (!audioBlob || !currentScript) return
+    try {
+      setSaveError(null)
+      const result = await api.saveRecording(
+        audioBlob,
+        currentScript.id,
+        currentLineIndex,
+        currentLine
+      )
+      if (result.success) {
+        setRecordings(prev =>
+          new Map(prev).set(recordingKey, {
+            id: result.id!,
+            text: currentLine,
+            duration_seconds: result.duration_seconds,
+            is_valid: result.is_valid,
+          })
+        )
+        clearRecording()
+        announce('Recording saved successfully.', 'polite')
+      } else {
+        setSaveError(result.error || 'Failed to save recording')
+        announce(`Failed to save recording. ${result.error || 'Failed to save recording'}`, 'assertive')
+      }
+    } catch (err) {
+      console.error('Failed to save recording:', err)
+      setSaveError(err instanceof Error ? err.message : 'Failed to save recording')
+      announce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, 'assertive')
+    }
+  }, [audioBlob, currentScript, currentLineIndex, currentLine, recordingKey, clearRecording, announce])
+
+  const handlePronounce = useCallback(async () => {
+    if (!currentLine) return
+    try {
+      const blob = await api.pronounceText(currentLine)
+      const url = URL.createObjectURL(blob)
+      const audio = new Audio(url)
+      audio.onended = () => URL.revokeObjectURL(url)
+      await audio.play()
+      announce('Pronunciation playing.', 'polite')
+    } catch {
+      try {
+        const utterance = new SpeechSynthesisUtterance(currentLine)
+        utterance.lang = 'en-US'
+        speechSynthesis.speak(utterance)
+        announce('Pronunciation playing.', 'polite')
+      } catch (fallbackErr) {
+        console.warn('Pronunciation failed:', fallbackErr)
+        announce('Pronunciation unavailable. Try installing espeak-ng on the server.', 'assertive')
+      }
+    }
+  }, [currentLine, announce])
+
+  const handlePlay = useCallback(() => {
+    if (audioPlaybackRef.current) {
+      audioPlaybackRef.current.pause()
+      audioPlaybackRef.current = null
+    }
+    if (audioBlob) {
+      const url = URL.createObjectURL(audioBlob)
+      const audio = new Audio(url)
+      audioPlaybackRef.current = audio
+      audio.onended = () => {
+        URL.revokeObjectURL(url)
+        audioPlaybackRef.current = null
+      }
+      audio.play().catch((err) => console.warn('Playback failed:', err))
+    } else if (hasRecording) {
+      const entry = recordings.get(recordingKey)
+      if (entry?.id) {
+        api.fetchRecordingAudio(entry.id).then((blob) => {
+          const url = URL.createObjectURL(blob)
+          const audio = new Audio(url)
+          audioPlaybackRef.current = audio
+          audio.onended = () => {
+            URL.revokeObjectURL(url)
+            audioPlaybackRef.current = null
+          }
+          audio.play().catch((err) => console.warn('Playback failed:', err))
+        }).catch((err) => console.warn('Playback failed:', err))
+      }
+    }
+  }, [audioBlob, hasRecording, recordings, recordingKey])
+
+  useEffect(() => {
+    return () => {
+      if (audioPlaybackRef.current) {
+        audioPlaybackRef.current.pause()
+        audioPlaybackRef.current = null
+      }
+    }
+  }, [])
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      if (e.key === '?') {
+        e.preventDefault()
+        setShowKeyboardShortcuts((s) => !s)
+        return
+      }
+      if (showKeyboardShortcuts) return
       if (e.code === 'Space' && !e.repeat) {
         e.preventDefault()
         handleRecord()
+      } else if (e.code === 'KeyS') {
+        e.preventDefault()
+        if (audioBlob) handleSave()
+      } else if (e.code === 'KeyR') {
+        e.preventDefault()
+        handleRedo()
+      } else if (e.code === 'KeyP') {
+        e.preventDefault()
+        handlePlay()
+      } else if (e.code === 'KeyT' && accessibilitySettings.speakOut) {
+        e.preventDefault()
+        handlePronounce()
+      } else if (e.code === 'Escape') {
+        e.preventDefault()
+        if (showKeyboardShortcuts) {
+          setShowKeyboardShortcuts(false)
+        } else if (audioBlob) {
+          clearRecording()
+          setSaveError(null)
+        }
       } else if (e.code === 'ArrowRight') {
         e.preventDefault()
         handleNext()
@@ -244,7 +387,7 @@ export function Record() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleRecord, handleNext, handlePrev])
+  }, [handleRecord, handleNext, handlePrev, handleRedo, handleSave, handlePlay, handlePronounce, audioBlob, showKeyboardShortcuts, clearRecording, accessibilitySettings.speakOut])
 
   const handleSeek = useCallback(
     (index: number) => {
@@ -347,9 +490,19 @@ export function Record() {
           onPrev={handlePrev}
           onNext={handleNext}
           onRedo={handleRedo}
+          onSave={handleSave}
+          onPlay={handlePlay}
+          onPronounce={accessibilitySettings.speakOut ? handlePronounce : undefined}
+          onShowShortcuts={() => setShowKeyboardShortcuts(true)}
+          hasUnsavedBlob={!!audioBlob}
           canPrev={canPrev}
           canNext={canNext}
           disabled={disabled}
+        />
+
+        <KeyboardShortcuts
+          isOpen={showKeyboardShortcuts}
+          onClose={() => setShowKeyboardShortcuts(false)}
         />
 
         {saveError && (

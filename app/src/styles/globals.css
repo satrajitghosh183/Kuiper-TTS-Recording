@@ -49,6 +49,27 @@
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    --accessibility-text-scale: 1;
+    --accessibility-icon-scale: 24;
+  }
+
+  html[data-high-contrast="true"] {
+    --studio-text-0: #ffffff;
+    --studio-bg-0: #000000;
+    --studio-accent: #00ff00;
+    --studio-border: rgba(255, 255, 255, 0.4);
+  }
+
+  html[data-reduced-motion="true"] *,
+  html[data-reduced-motion="true"] *::before,
+  html[data-reduced-motion="true"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html[data-large-text="true"] {
+    font-size: 1.25rem;
   }
 
   body {
@@ -223,6 +244,29 @@
 }
 
 @layer utilities {
+  /* Screen reader only - visually hidden but accessible */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Touch targets - minimum 44px on coarse pointer devices */
+  @media (pointer: coarse) {
+    button:not(.no-touch-target),
+    a:not(.no-touch-target),
+    [role="button"]:not(.no-touch-target) {
+      min-width: 44px;
+      min-height: 44px;
+    }
+  }
+
   /* Text gradient */
   .text-gradient {
     @apply bg-clip-text text-transparent;

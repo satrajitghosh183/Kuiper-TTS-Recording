@@ -69,12 +69,15 @@ export interface AudioProcessorSettings {
 interface UseAudioRecorderOptions {
   sampleRate?: number
   channelCount?: number
+  /** Called when recording stops - use for explicit save. If not provided, blob is only stored in state. */
   onDataAvailable?: (blob: Blob) => void
+  /** If true, onDataAvailable is NOT called on stop - blob stays in state for preview-before-save. */
+  autoSave?: boolean
   processorSettings?: AudioProcessorSettings
 }
 
 export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
-  const { sampleRate = 22050, channelCount = 1, onDataAvailable, processorSettings } = options
+  const { sampleRate = 22050, channelCount = 1, onDataAvailable, autoSave = false, processorSettings } = options
 
   const [state, setState] = useState<AudioRecorderState>({
     isRecording: false,
@@ -219,7 +222,10 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
           // Convert WebM/MP4 to WAV using Web Audio API
           const audioBlob = await convertToWav(chunksRef.current)
           setState((prev) => ({ ...prev, audioBlob }))
-          onDataAvailable?.(audioBlob)
+          // Only auto-save if explicitly enabled (legacy behavior); otherwise caller saves via blob
+          if (autoSave && onDataAvailable) {
+            onDataAvailable(audioBlob)
+          }
         }
 
         // Start recording
@@ -237,7 +243,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
         }))
       }
     },
-    [sampleRate, channelCount, onDataAvailable, updateAudioLevel, processorSettings]
+    [sampleRate, channelCount, onDataAvailable, autoSave, updateAudioLevel, processorSettings]
   )
 
   const stopRecording = useCallback(() => {

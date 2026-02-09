@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
+import { ScreenReaderProvider } from './hooks/useScreenReader'
+import { AccessibilitySettingsProvider } from './contexts/AccessibilitySettingsContext'
+import { AccessibilityInit } from './components/AccessibilityInit'
 import { Welcome, Record, Admin, Login, SignUp, Library } from './pages'
 
 function App() {
@@ -13,6 +16,9 @@ function App() {
       }}
     >
       <AuthProvider>
+        <AccessibilityInit />
+        <AccessibilitySettingsProvider>
+        <ScreenReaderProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -26,6 +32,8 @@ function App() {
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </ScreenReaderProvider>
+        </AccessibilitySettingsProvider>
       </AuthProvider>
     </BrowserRouter>
   )
