@@ -3,7 +3,15 @@ import { X, Type, Image, Contrast, Move, Eye, Volume2, Download, Play, Trash2 } 
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
 import type { TextScale, IconScale } from '../hooks/useAccessibilitySettings'
 import { KeyboardShortcuts } from './KeyboardShortcuts'
-import { listLocalRecordings, deleteLocalRecording, type LocalRecording } from '../lib/localRecordings'
+import {
+  listLocalRecordings,
+  deleteLocalRecording,
+  chooseSaveFolder,
+  getChosenFolderName,
+  isFolderPickerSupported,
+  clearDirectoryHandle,
+  type LocalRecording,
+} from '../lib/localRecordings'
 
 interface AccessibilityPanelProps {
   isOpen: boolean
@@ -84,6 +92,8 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [localRecordings, setLocalRecordings] = useState<LocalRecording[]>([])
   const [playingId, setPlayingId] = useState<string | null>(null)
+  const [chosenFolderName, setChosenFolderName] = useState<string | null>(null)
+  const [folderPickerError, setFolderPickerError] = useState<string | null>(null)
   const playingAudioRef = useRef<HTMLAudioElement | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -98,6 +108,7 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
   useEffect(() => {
     if (isOpen) {
       listLocalRecordings().then(setLocalRecordings)
+      getChosenFolderName().then(setChosenFolderName)
     }
   }, [isOpen])
 
@@ -290,6 +301,66 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
                   className="w-4 h-4 rounded"
                 />
               </label>
+              {settings.saveRecordingsLocally && isFolderPickerSupported() && (
+                <div className="pl-6 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setFolderPickerError(null)
+                        try {
+                          const handle = await chooseSaveFolder()
+                          setChosenFolderName(handle?.name ?? null)
+                        } catch (err) {
+                          setFolderPickerError(err instanceof Error ? err.message : 'Failed to choose folder')
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium"
+                      style={{
+                        background: 'var(--studio-glass)',
+                        border: '1px solid var(--studio-border)',
+                        color: 'var(--studio-text-0)',
+                      }}
+                    >
+                      Choose save location
+                    </button>
+                    {chosenFolderName && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await clearDirectoryHandle()
+                          setChosenFolderName(null)
+                        }}
+                        className="px-2 py-1 rounded text-xs"
+                        style={{ color: 'var(--studio-text-2)' }}
+                        title="Use browser storage only"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  {chosenFolderName && (
+                    <p className="text-xs" style={{ color: 'var(--studio-text-2)' }}>
+                      Saving to: {chosenFolderName}
+                    </p>
+                  )}
+                  {!chosenFolderName && (
+                    <p className="text-xs" style={{ color: 'var(--studio-text-2)' }}>
+                      Browser storage only. Choose a folder to also save files there.
+                    </p>
+                  )}
+                  {folderPickerError && (
+                    <p className="text-xs" style={{ color: 'var(--studio-accent-recording)' }}>
+                      {folderPickerError}
+                    </p>
+                  )}
+                </div>
+              )}
+              {settings.saveRecordingsLocally && !isFolderPickerSupported() && (
+                <p className="pl-6 text-xs" style={{ color: 'var(--studio-text-2)' }}>
+                  Browser storage only. Folder selection requires Chrome or Edge.
+                </p>
+              )}
             </div>
 
             {/* Local recordings */}

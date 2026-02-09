@@ -201,13 +201,14 @@ async def get_recording_progress(recorder_name: Optional[str] = None) -> List[Di
         result = query.execute()
         recorded = result.count or 0
         total = script["line_count"]
+        percent = round((recorded / total * 100), 1) if total > 0 else 0
         progress.append({
             "script_id": script["id"],
             "script_name": script["name"],
             "recorded": recorded,
             "total": total,
             "remaining": total - recorded,
-            "percent": round((recorded / total * 100) if total > 0 else 0),
+            "percent": percent,
         })
 
     return progress

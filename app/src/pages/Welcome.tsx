@@ -310,19 +310,21 @@ export function Welcome() {
                       </div>
                       <div className="flex items-center gap-3 min-w-[120px]">
                         <div
-                          className="flex-1 h-1.5 rounded-full overflow-hidden"
+                          className="flex-1 h-1.5 rounded-full overflow-hidden min-w-[80px]"
                           style={{ background: 'var(--studio-border)' }}
                         >
                           <div
                             className="h-full rounded-full transition-all duration-300"
                             style={{
-                              width: `${p.percent}%`,
+                              width: `${p.recorded > 0 ? Math.max(p.percent, 1) : p.percent}%`,
                               background: 'var(--studio-accent)',
                             }}
                           />
                         </div>
                         <span className="text-caption w-8 text-right" style={{ color: 'var(--studio-text-2)' }}>
-                          {p.percent}%
+                          {p.recorded > 0 && p.percent < 1
+                            ? (p.recorded / p.total * 100).toFixed(1) + '%'
+                            : `${p.percent}%`}
                         </span>
                       </div>
                     </div>
