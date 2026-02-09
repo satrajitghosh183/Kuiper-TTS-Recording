@@ -112,6 +112,7 @@ export function Layout() {
                         }
                       }}
                       title={label}
+                      aria-label={label}
                     >
                       <LiquidMetalIcon size={22}>
                         <Icon size={22} strokeWidth={1.5} />
@@ -145,6 +146,7 @@ export function Layout() {
             className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto hover:bg-[rgba(255,255,255,0.1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)]"
             style={{ color: 'var(--studio-text-1)' }}
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             whileHover={!prefersReducedMotion ? { scale: 1.04, y: -1 } : {}}
             whileTap={!prefersReducedMotion ? { scale: 0.96 } : {}}
             transition={springConfig}
@@ -173,6 +175,7 @@ export function Layout() {
             className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto hover:bg-[rgba(255,255,255,0.1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--studio-accent)]"
             style={{ color: 'var(--studio-text-1)' }}
             title="Sign out"
+            aria-label="Sign out"
             whileHover={!prefersReducedMotion ? { scale: 1.04, y: -1 } : {}}
             whileTap={!prefersReducedMotion ? { scale: 0.96 } : {}}
             transition={springConfig}

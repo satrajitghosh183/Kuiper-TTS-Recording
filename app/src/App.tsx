@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { GlobalAccessibility } from './components/GlobalAccessibility'
 import { PageAnnouncements } from './components/PageAnnouncements'
+import { VoiceHoverListener } from './components/VoiceHoverListener'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
 import { ScreenReaderProvider } from './hooks/useScreenReader'
@@ -23,6 +24,7 @@ function App() {
         <ScreenReaderProvider>
         <GlobalAccessibility />
         <PageAnnouncements />
+        <VoiceHoverListener />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
