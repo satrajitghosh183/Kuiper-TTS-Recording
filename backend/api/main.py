@@ -259,7 +259,7 @@ class RecordingProgressResponse(BaseModel):
     recorded: int
     total: int
     remaining: int
-    percent: int
+    percent: float  # Allows 0.1, 0.2 for small progress; display with 1 decimal when < 1
 
 class SaveRecordingResponse(BaseModel):
     success: bool
@@ -309,7 +309,7 @@ async def health_check():
 # ============================================================================
 
 @app.get("/api/tts/pronounce")
-async def tts_pronounce(text: str = "", lang: str = "en"):
+async def tts_pronounce(request: Request, text: str = "", lang: str = "en"):
     """Synthesize text to speech using espeak-ng. Returns WAV audio."""
     if not text or not text.strip():
         raise HTTPException(400, "Text is required")
@@ -329,7 +329,10 @@ async def tts_pronounce(text: str = "", lang: str = "en"):
             return Response(
                 content=audio_data,
                 media_type="audio/wav",
-                headers={"Cache-Control": "public, max-age=3600"},
+                headers={
+                    "Cache-Control": "public, max-age=3600",
+                    **_cors_headers_for_request(request),
+                },
             )
         finally:
             Path(out_path).unlink(missing_ok=True)
