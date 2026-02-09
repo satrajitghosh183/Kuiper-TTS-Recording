@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Play, Pause, Trash2, ChevronLeft, Loader2, Download } from 'lucide-react'
-import { api, type Recording, formatDuration } from '../lib/api'
+import { api, APIError, type Recording, formatDuration } from '../lib/api'
 import { LiquidMetalIcon } from '../components/LiquidMetalIcon'
 
 interface GroupedRecordings {
@@ -21,32 +21,39 @@ export function Library() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const objectUrlRef = useRef<string | null>(null)
 
-  useEffect(() => {
-    const load = async () => {
+  const loadRecordings = useCallback(async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      let recs: Recording[]
       try {
-        setLoading(true)
-        setError(null)
-        const recs = await api.listRecordings()
-        const byScript = new Map<string, Recording[]>()
-        recs.forEach((r) => {
-          const key = r.script_name || `Script ${r.script_id}`
-          if (!byScript.has(key)) byScript.set(key, [])
-          byScript.get(key)!.push(r)
-        })
-        const groups: GroupedRecordings[] = Array.from(byScript.entries()).map(([scriptName, recordings]) => ({
-          scriptName,
-          recordings: recordings.sort((a, b) => a.line_index - b.line_index),
-        }))
-        setGrouped(groups)
-      } catch (err) {
-        console.error('Failed to load recordings', err)
-        setError('Failed to load recordings.')
-      } finally {
-        setLoading(false)
+        recs = await api.listRecordings()
+      } catch (firstErr) {
+        await new Promise((r) => setTimeout(r, 2500))
+        recs = await api.listRecordings()
       }
+      const byScript = new Map<string, Recording[]>()
+      recs.forEach((r) => {
+        const key = r.script_name || `Script ${r.script_id}`
+        if (!byScript.has(key)) byScript.set(key, [])
+        byScript.get(key)!.push(r)
+      })
+      const groups: GroupedRecordings[] = Array.from(byScript.entries()).map(([scriptName, recordings]) => ({
+        scriptName,
+        recordings: recordings.sort((a, b) => a.line_index - b.line_index),
+      }))
+      setGrouped(groups)
+    } catch (err) {
+      console.error('Failed to load recordings', err)
+      setError('Failed to load recordings. The server may be starting up - try again.')
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => {
+    loadRecordings()
+  }, [loadRecordings])
 
   const handlePlayPause = useCallback(async (recordingId: number) => {
     if (currentId === recordingId && audioRef.current && !audioRef.current.paused) {
@@ -65,19 +72,46 @@ export function Library() {
       audioRef.current.src = ''
     }
 
+    const fetchWithRetry = async (): Promise<Blob> => {
+      try {
+        return await api.fetchRecordingAudio(recordingId)
+      } catch (firstErr) {
+        const isRetryable =
+          firstErr instanceof TypeError && firstErr.message === 'Failed to fetch' ||
+          (firstErr instanceof APIError && firstErr.status >= 500)
+        if (isRetryable) {
+          await new Promise((r) => setTimeout(r, 2500))
+          return api.fetchRecordingAudio(recordingId)
+        }
+        throw firstErr
+      }
+    }
+
     try {
       setLoadingId(recordingId)
-      const blob = await api.fetchRecordingAudio(recordingId)
+      const blob = await fetchWithRetry()
       const url = URL.createObjectURL(blob)
       objectUrlRef.current = url
-      if (audioRef.current) {
-        audioRef.current.src = url
-        await audioRef.current.play()
-        setCurrentId(recordingId)
+      const audio = new Audio(url)
+      audio.onended = () => {
+        setCurrentId(null)
+        if (objectUrlRef.current) {
+          URL.revokeObjectURL(objectUrlRef.current)
+          objectUrlRef.current = null
+        }
       }
+      audioRef.current = audio
+      await audio.play()
+      setCurrentId(recordingId)
     } catch (err) {
       console.warn('Playback failed:', err)
-      setPlayError(err instanceof Error ? err.message : 'Playback failed')
+      const msg =
+        err instanceof APIError
+          ? err.detail || err.message
+          : err instanceof Error
+            ? err.message
+            : 'Playback failed'
+      setPlayError(msg)
     } finally {
       setLoadingId(null)
     }
@@ -87,8 +121,9 @@ export function Library() {
     const all = grouped.flatMap((g) => g.recordings)
     if (all.length === 0) return
     setDownloading(true)
-    try {
-      const zip = await api.downloadRecordingsAsZip(
+    setPlayError(null)
+    const doDownload = () =>
+      api.downloadRecordingsAsZip(
         all.map((r) => ({
           id: r.id,
           script_name: r.script_name,
@@ -96,6 +131,14 @@ export function Library() {
           phrase_text: r.phrase_text,
         }))
       )
+    try {
+      let zip: Blob
+      try {
+        zip = await doDownload()
+      } catch (firstErr) {
+        await new Promise((r) => setTimeout(r, 2500))
+        zip = await doDownload()
+      }
       const a = document.createElement('a')
       a.href = URL.createObjectURL(zip)
       a.download = `kuiper-recordings-${new Date().toISOString().slice(0, 10)}.zip`
@@ -103,7 +146,14 @@ export function Library() {
       URL.revokeObjectURL(a.href)
     } catch (err) {
       console.error('Download failed:', err)
-      window.alert('Failed to download recordings. Please try again.')
+      const msg =
+        err instanceof APIError
+          ? err.detail || err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to download'
+      setPlayError(msg)
+      window.alert(msg + ' The server may be starting up - try again in a few seconds.')
     } finally {
       setDownloading(false)
     }
@@ -154,13 +204,21 @@ export function Library() {
           className="studio-card rounded-3xl p-8 text-center"
         >
           <p className="text-[var(--studio-text-1)] mb-4">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="px-4 py-2 rounded-xl bg-[var(--studio-accent)] text-[var(--studio-bg-0)] hover:brightness-110 transition-colors inline-flex items-center gap-2"
-          >
-            <ChevronLeft size={18} />
-            Back
-          </button>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <button
+              onClick={() => loadRecordings()}
+              className="px-4 py-2 rounded-xl bg-[var(--studio-accent)] text-[var(--studio-bg-0)] hover:brightness-110 transition-colors inline-flex items-center gap-2"
+            >
+              Try again
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 rounded-xl bg-[var(--studio-glass)] border border-[var(--studio-border)] text-[var(--studio-text-1)] hover:text-[var(--studio-text-0)] transition-colors inline-flex items-center gap-2"
+            >
+              <ChevronLeft size={18} />
+              Back
+            </button>
+          </div>
         </div>
       </div>
     )
