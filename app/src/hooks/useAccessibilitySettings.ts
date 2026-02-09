@@ -12,6 +12,7 @@ export interface AccessibilitySettings {
   largeText: boolean
   reducedMotion: boolean
   speakOut: boolean
+  voiceGuide: boolean
 }
 
 export const DEFAULT_SETTINGS: AccessibilitySettings = {
@@ -21,6 +22,7 @@ export const DEFAULT_SETTINGS: AccessibilitySettings = {
   largeText: false,
   reducedMotion: false,
   speakOut: true,
+  voiceGuide: false,
 }
 
 export const TEXT_SCALE_MAP: Record<TextScale, number> = {
@@ -113,6 +115,7 @@ export function useAccessibilitySettings() {
     settings.largeText,
     settings.reducedMotion,
     settings.speakOut === false,
+    settings.voiceGuide,
   ].filter(Boolean).length
 
   return { settings, setSettings, resetSettings, activeCount }

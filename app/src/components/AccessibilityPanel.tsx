@@ -188,6 +188,18 @@ export function AccessibilityPanel({ isOpen, onClose }: AccessibilityPanelProps)
                   className="w-4 h-4 rounded"
                 />
               </label>
+              <label className="flex items-center justify-between gap-4 cursor-pointer">
+                <span className="flex items-center gap-2" style={{ color: 'var(--studio-text-0)' }}>
+                  <Volume2 size={18} style={{ color: 'var(--studio-accent)' }} />
+                  Voice guide (navigation help for blind users)
+                </span>
+                <input
+                  type="checkbox"
+                  checked={settings.voiceGuide}
+                  onChange={(e) => setSettings({ voiceGuide: e.target.checked })}
+                  className="w-4 h-4 rounded"
+                />
+              </label>
             </div>
 
             <div className="flex flex-wrap gap-2 pt-2">

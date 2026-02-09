@@ -7,6 +7,7 @@ import { KeyboardShortcuts } from '../components/KeyboardShortcuts'
 import { api, type Recording as RecordingType, type Script } from '../lib/api'
 import { useAudioRecorder } from '../hooks/useAudioRecorder'
 import { useScreenReader } from '../hooks/useScreenReader'
+import { useVoiceAnnouncements } from '../hooks/useVoiceAnnouncements'
 import { useAccessibilitySettingsContext } from '../contexts/AccessibilitySettingsContext'
 
 interface RecordingEntry {
@@ -31,6 +32,7 @@ export function Record() {
   const [showAudioControls, setShowAudioControls] = useState(false)
   const audioPlaybackRef = useRef<HTMLAudioElement | null>(null)
   const { announce } = useScreenReader()
+  const { announce: voiceAnnounce } = useVoiceAnnouncements()
   const { settings: accessibilitySettings } = useAccessibilitySettingsContext()
   const [audioGain, setAudioGain] = useState(() => {
     const v = localStorage.getItem('kuiper_audio_gain')
@@ -199,17 +201,20 @@ export function Record() {
       setSaveError(null)
       await startRecording(audioDeviceId ?? undefined)
       announce('Recording started. Speak now.', 'polite')
+      voiceAnnounce('Recording started. Speak clearly into your microphone.', true)
     }
   }, [isRecording, stopRecording, clearRecording, startRecording, audioDeviceId, announce])
 
   const handleNext = useCallback(() => {
     if (!currentScript) return
+    let nextLineText = ''
     const advance = () => {
       if (currentLineIndex < currentScript.lines.length - 1) {
         let next = currentLineIndex + 1
         while (next < currentScript.lines.length && recordings.has(`${currentScript.id}_${next}`)) {
           next++
         }
+        nextLineText = currentScript.lines[next] || ''
         setCurrentLineIndex(next)
       } else if (currentScriptIndex < scripts.length - 1) {
         const nextScriptIdx = currentScriptIndex + 1
@@ -220,6 +225,7 @@ export function Record() {
           while (nextLine < nextScript.lines.length && recordings.has(`${nextScript.id}_${nextLine}`)) {
             nextLine++
           }
+          nextLineText = nextScript.lines[nextLine] || ''
         }
         setCurrentLineIndex(nextLine)
       }
@@ -227,19 +233,30 @@ export function Record() {
     advance()
     clearRecording()
     setSaveError(null)
-  }, [currentScript, currentLineIndex, currentScriptIndex, scripts, recordings, clearRecording])
+    if (nextLineText) {
+      setTimeout(() => voiceAnnounce(`Moved to next phrase: ${nextLineText}`, false), 100)
+    }
+  }, [currentScript, currentLineIndex, currentScriptIndex, scripts, recordings, clearRecording, voiceAnnounce])
 
   const handlePrev = useCallback(() => {
     if (!currentScript) return
+    let prevLineText = ''
     if (currentLineIndex > 0) {
+      prevLineText = currentScript.lines[currentLineIndex - 1] || ''
       setCurrentLineIndex(prev => prev - 1)
     } else if (currentScriptIndex > 0) {
+      const prevScript = scripts[currentScriptIndex - 1]
       setCurrentScriptIndex(prev => prev - 1)
-      setCurrentLineIndex(Math.max(0, (scripts[currentScriptIndex - 1]?.lines.length ?? 1) - 1))
+      const prevLineIdx = Math.max(0, (prevScript?.lines.length ?? 1) - 1)
+      prevLineText = prevScript?.lines[prevLineIdx] || ''
+      setCurrentLineIndex(prevLineIdx)
     }
     clearRecording()
     setSaveError(null)
-  }, [currentScript, currentLineIndex, currentScriptIndex, scripts, clearRecording])
+    if (prevLineText) {
+      setTimeout(() => voiceAnnounce(`Moved to previous phrase: ${prevLineText}`, false), 100)
+    }
+  }, [currentScript, currentLineIndex, currentScriptIndex, scripts, clearRecording, voiceAnnounce])
 
   const handleRedo = useCallback(() => {
     setRecordings(prev => {
@@ -249,7 +266,8 @@ export function Record() {
     })
     clearRecording()
     setSaveError(null)
-  }, [recordingKey, clearRecording])
+    voiceAnnounce('Recording cleared. Ready to record again.', false)
+  }, [recordingKey, clearRecording, voiceAnnounce])
 
   const handleSave = useCallback(async () => {
     if (!audioBlob || !currentScript) return
@@ -272,14 +290,17 @@ export function Record() {
         )
         clearRecording()
         announce('Recording saved successfully.', 'polite')
+        voiceAnnounce('Recording saved successfully.', false)
       } else {
         setSaveError(result.error || 'Failed to save recording')
         announce(`Failed to save recording. ${result.error || 'Failed to save recording'}`, 'assertive')
+        voiceAnnounce(`Failed to save recording. ${result.error || 'Failed to save recording'}`, true)
       }
     } catch (err) {
       console.error('Failed to save recording:', err)
       setSaveError(err instanceof Error ? err.message : 'Failed to save recording')
       announce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, 'assertive')
+      voiceAnnounce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, true)
     }
   }, [audioBlob, currentScript, currentLineIndex, currentLine, recordingKey, clearRecording, announce])
 

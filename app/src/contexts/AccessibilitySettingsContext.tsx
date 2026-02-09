@@ -57,6 +57,7 @@ export function AccessibilitySettingsProvider({ children }: { children: ReactNod
     settings.largeText,
     settings.reducedMotion,
     settings.speakOut === false,
+    settings.voiceGuide,
   ].filter(Boolean).length
 
   return (
