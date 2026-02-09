@@ -64,9 +64,13 @@ app = FastAPI(
 )
 
 # CORS configuration
+# In production: use cors_origins from env; also allow *.vercel.app preview URLs
+_cors_origins = list(settings.cors_origins) if settings.is_production else ["*"]
+_origin_regex = r"https://.*\.vercel\.app" if settings.is_production else None
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins if settings.is_production else ["*"],
+    allow_origins=_cors_origins,
+    allow_origin_regex=_origin_regex,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

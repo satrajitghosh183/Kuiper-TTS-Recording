@@ -264,9 +264,9 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
       streamRef.current.getTracks().forEach((track) => track.stop())
     }
 
-    // Close audio context
-    if (audioContextRef.current) {
-      audioContextRef.current.close()
+    // Close audio context (avoid closing if already closed)
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close().catch(() => {})
     }
 
     gainNodeRef.current = null

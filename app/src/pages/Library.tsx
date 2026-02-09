@@ -40,7 +40,10 @@ export function Library() {
         setGrouped(groups)
       } catch (err) {
         console.error('Failed to load recordings', err)
-        setError('Failed to load recordings.')
+        const msg = err instanceof Error ? err.message : 'Failed to load recordings.'
+        setError(msg.includes('CORS') || msg.includes('Failed to fetch')
+          ? 'Cannot reach the API. Ensure the backend is running and allows your frontend URL (CORS).'
+          : 'Failed to load recordings.')
       } finally {
         setLoading(false)
       }
@@ -77,7 +80,10 @@ export function Library() {
       }
     } catch (err) {
       console.warn('Playback failed:', err)
-      setPlayError(err instanceof Error ? err.message : 'Playback failed')
+      const msg = err instanceof Error ? err.message : 'Playback failed'
+      setPlayError(msg.includes('CORS') || msg.includes('Failed to fetch')
+        ? 'Cannot load audio. Check that the API allows your frontend origin (CORS).'
+        : msg)
     } finally {
       setLoadingId(null)
     }

@@ -130,11 +130,11 @@ async function fetchAPI<T>(endpoint: string, options: FetchOptions = {}): Promis
     if (error instanceof APIError) {
       throw error
     }
-    throw new APIError(
-      error instanceof Error ? error.message : 'Network error',
-      0,
-      'Could not connect to the server.'
-    )
+    const msg = error instanceof Error ? error.message : 'Network error'
+    const hint = msg === 'Failed to fetch' || msg.includes('CORS')
+      ? 'Check that the API allows your frontend origin (CORS) and is running.'
+      : 'Could not connect to the server.'
+    throw new APIError(msg, 0, hint)
   }
 }
 
@@ -238,10 +238,22 @@ export const api = {
   /** Fetch recording audio with auth. Returns blob for playback (required when endpoint needs auth). */
   async fetchRecordingAudio(recordingId: number): Promise<Blob> {
     const headers = await getAuthHeaders()
-    const response = await fetch(`${API_BASE}/recordings/${recordingId}/audio`, {
-      headers,
-      credentials: 'include',
-    })
+    let response: Response
+    try {
+      response = await fetch(`${API_BASE}/recordings/${recordingId}/audio`, {
+        headers,
+        credentials: 'include',
+      })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to fetch'
+      throw new APIError(
+        msg,
+        0,
+        msg === 'Failed to fetch'
+          ? 'Cannot reach the API. Check your connection and that the backend allows your frontend origin (CORS).'
+          : 'Could not load audio.',
+      )
+    }
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: 'Failed to load audio' }))
       throw new APIError(err.detail || `HTTP ${response.status}`, response.status, err.detail)
