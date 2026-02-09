@@ -49,7 +49,11 @@ class Settings(BaseSettings):
     # Security
     admin_password: str = Field(default="DovKrugersRecording", env="ADMIN_PASSWORD")
     cors_origins: List[str] = Field(
-        default=["http://localhost:5173", "http://127.0.0.1:5173"],
+        default=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "https://kuiper-tts-recording.vercel.app",
+        ],
         env="KUIPER_CORS_ORIGINS"
     )
     max_upload_size_mb: int = Field(default=100, env="KUIPER_MAX_UPLOAD_SIZE_MB")
