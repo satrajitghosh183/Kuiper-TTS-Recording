@@ -281,8 +281,8 @@ class UserSettings(BaseModel):
 # Health Check
 # ============================================================================
 
-@app.get("/")
-@app.get("/api")
+@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/api", methods=["GET", "HEAD"])
 async def root():
     """Root endpoint - avoids 404 for health checks or users visiting the API URL."""
     return {
