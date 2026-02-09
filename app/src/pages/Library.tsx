@@ -55,7 +55,8 @@ export function Library() {
     loadRecordings()
   }, [loadRecordings])
 
-  const handlePlayPause = useCallback(async (recordingId: number) => {
+  const handlePlayPause = useCallback(async (rec: Recording) => {
+    const recordingId = rec.id
     if (currentId === recordingId && audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause()
       setCurrentId(null)
@@ -74,14 +75,14 @@ export function Library() {
 
     const fetchWithRetry = async (): Promise<Blob> => {
       try {
-        return await api.fetchRecordingAudio(recordingId)
+        return await api.fetchRecordingAudio(recordingId, rec.storage_path)
       } catch (firstErr) {
         const isRetryable =
           firstErr instanceof TypeError && firstErr.message === 'Failed to fetch' ||
           (firstErr instanceof APIError && firstErr.status >= 500)
         if (isRetryable) {
           await new Promise((r) => setTimeout(r, 2500))
-          return api.fetchRecordingAudio(recordingId)
+          return api.fetchRecordingAudio(recordingId, rec.storage_path)
         }
         throw firstErr
       }
@@ -129,6 +130,7 @@ export function Library() {
           script_name: r.script_name,
           line_index: r.line_index,
           phrase_text: r.phrase_text,
+          storage_path: r.storage_path,
         }))
       )
     try {
@@ -332,7 +334,7 @@ export function Library() {
                     >
                       <button
                         type="button"
-                        onClick={() => handlePlayPause(rec.id)}
+                        onClick={() => handlePlayPause(rec)}
                         disabled={loadingId === rec.id}
                         className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center"
                         style={{

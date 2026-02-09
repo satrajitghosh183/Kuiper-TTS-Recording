@@ -3,6 +3,13 @@
 import { supabase } from './supabase'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '')
+
+/** Direct Supabase Storage URL - bypasses API, no CORS to Render. */
+export function getRecordingStorageUrl(storagePath: string): string {
+  if (!SUPABASE_URL || !storagePath) return ''
+  return `${SUPABASE_URL}/storage/v1/object/public/recordings/${storagePath}`
+}
 
 /** Get auth headers for recording endpoints (requires signed-in user) */
 async function getAuthHeaders(): Promise<Record<string, string>> {
@@ -235,8 +242,14 @@ export const api = {
     return `${API_BASE}/recordings/${recordingId}/audio`
   },
 
-  /** Fetch recording audio with auth. Returns blob for playback (required when endpoint needs auth). */
-  async fetchRecordingAudio(recordingId: number): Promise<Blob> {
+  /** Fetch recording audio. Uses direct Supabase Storage URL when storagePath provided (bypasses API/CORS). */
+  async fetchRecordingAudio(recordingId: number, storagePath?: string): Promise<Blob> {
+    const url = storagePath ? getRecordingStorageUrl(storagePath) : ''
+    if (url) {
+      const response = await fetch(url)
+      if (!response.ok) throw new APIError(`Failed to load audio`, response.status)
+      return response.blob()
+    }
     const headers = await getAuthHeaders()
     const response = await fetch(`${API_BASE}/recordings/${recordingId}/audio`, {
       headers,
@@ -256,12 +269,12 @@ export const api = {
     })
   },
 
-  /** Download all user recordings as a ZIP. Fetches each and builds client-side. */
-  async downloadRecordingsAsZip(recordings: Array<{ id: number; script_name: string; line_index: number; phrase_text: string }>): Promise<Blob> {
+  /** Download all user recordings as a ZIP. Fetches from Supabase Storage when storage_path available (bypasses API/CORS). */
+  async downloadRecordingsAsZip(recordings: Array<{ id: number; script_name: string; line_index: number; phrase_text: string; storage_path?: string }>): Promise<Blob> {
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
     for (const rec of recordings) {
-      const blob = await this.fetchRecordingAudio(rec.id)
+      const blob = await this.fetchRecordingAudio(rec.id, rec.storage_path)
       const safeName = `${rec.script_name}_${String(rec.line_index + 1).padStart(4, '0')}.wav`
         .replace(/[^a-zA-Z0-9_.-]/g, '_')
       zip.file(safeName, blob)

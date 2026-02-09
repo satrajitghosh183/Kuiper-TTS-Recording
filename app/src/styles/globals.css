@@ -2,36 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TT Otilito Sans - add font files to public/fonts/ for full support
-   See: https://dribbble.com/shots/26425491-TT-Otilito-Sans-Font-Family */
-@font-face {
-  font-family: 'TT Otilito Sans';
-  src: url('/fonts/tt-otilito-sans-regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'TT Otilito Sans';
-  src: url('/fonts/tt-otilito-sans-medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'TT Otilito Sans';
-  src: url('/fonts/tt-otilito-sans-semibold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'TT Otilito Sans';
-  src: url('/fonts/tt-otilito-sans-bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* TT Otilito Sans - font files optional; add to public/fonts/ for full support.
+   See: https://dribbble.com/shots/26425491-TT-Otilito-Sans-Font-Family
+   Without font files, app falls back to Plus Jakarta Sans / system-ui. */
 
 /* StringTune Design System - Global Styles */
 

@@ -97,7 +97,8 @@ async def rate_limit_middleware(request: Request, call_next):
         if len(_rate_limit_store[client_ip]) >= settings.rate_limit_per_minute:
             return JSONResponse(
                 status_code=429,
-                content={"detail": "Rate limit exceeded. Please try again later."}
+                content={"detail": "Rate limit exceeded. Please try again later."},
+                headers=_cors_headers_for_request(request),
             )
 
         _rate_limit_store[client_ip].append(current_time)
@@ -631,7 +632,13 @@ async def get_recording_audio(recording_id: int, request: Request):
         record = await db.get_recording(recording_id)
         if not record:
             raise HTTPException(404, "Recording not found")
-        if str(record.get("user_id")) != user_id:
+        # Allow access if user_id matches, or if legacy record (user_id null) and recorder_name matches
+        record_user_id = record.get("user_id")
+        record_recorder = record.get("recorder_name", "")
+        if record_user_id is not None:
+            if str(record_user_id) != user_id:
+                raise HTTPException(404, "Recording not found")
+        elif record_recorder != user_id:
             raise HTTPException(404, "Recording not found")
 
         storage_path = record.get("storage_path")
@@ -639,13 +646,15 @@ async def get_recording_audio(recording_id: int, request: Request):
             raise HTTPException(404, "Recording audio not found")
 
         audio_data = await db.get_recording_audio(storage_path)
+        headers = {
+            "Content-Disposition": f'inline; filename="{record["filename"]}"',
+            "Cache-Control": "public, max-age=3600",
+            **_cors_headers_for_request(request),
+        }
         return Response(
             content=audio_data,
             media_type="audio/wav",
-            headers={
-                "Content-Disposition": f'inline; filename="{record["filename"]}"',
-                "Cache-Control": "public, max-age=3600",
-            }
+            headers=headers,
         )
     except HTTPException:
         raise
