@@ -215,22 +215,26 @@ async def get_recording_progress(recorder_name: Optional[str] = None) -> List[Di
 
 
 async def delete_recording(recording_id: int) -> bool:
-    """Delete a recording."""
+    """Delete a recording from storage and database."""
     client = get_supabase()
-    # Get storage path first
     record = await get_recording(recording_id)
     if not record:
         return False
 
-    # Delete from storage
-    if record.get("storage_path"):
+    storage_path = record.get("storage_path")
+    if storage_path:
         try:
-            client.storage.from_("recordings").remove([record["storage_path"]])
+            client.storage.from_("recordings").remove([storage_path])
+            logger.info(f"Deleted storage file: {storage_path}")
         except Exception as e:
-            logger.warning(f"Failed to delete from storage: {e}")
+            logger.warning(f"Failed to delete from storage {storage_path}: {e}")
+            # Continue to delete DB row - orphaned file is better than orphaned row
 
-    # Delete from DB
-    client.table("recordings").delete().eq("id", recording_id).execute()
+    result = client.table("recordings").delete().eq("id", recording_id).execute()
+    deleted_count = len(result.data) if result.data is not None else 0
+    if deleted_count == 0:
+        logger.warning(f"Delete recording {recording_id}: no rows affected (RLS or missing row?)")
+        return False
     return True
 
 

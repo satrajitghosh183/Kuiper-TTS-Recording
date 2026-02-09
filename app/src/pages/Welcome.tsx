@@ -10,7 +10,7 @@ import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } fro
 import { LiquidButton, GravityText } from '../components'
 import { LiquidMetalIcon } from '../components/LiquidMetalIcon'
 import { VinylPlayer } from '../components/VinylPlayer'
-import { api, type RecordingProgress } from '../lib/api'
+import { api, type RecordingProgress, type Script } from '../lib/api'
 
 /** Physics card: mouse-follow tilt, subtle float, spring transitions */
 function PhysicsCard({
@@ -77,7 +77,7 @@ export function Welcome() {
   const prefersReducedMotion = useReducedMotion()
   const [serverAvailable, setServerAvailable] = useState<boolean | null>(null)
   const [progress, setProgress] = useState<RecordingProgress[]>([])
-  const [totalScripts, setTotalScripts] = useState(0)
+  const [scripts, setScripts] = useState<Script[]>([])
 
   useEffect(() => {
     let mounted = true
@@ -99,13 +99,35 @@ export function Welcome() {
 
   useEffect(() => {
     if (serverAvailable) {
-      api.getRecordingProgress().then(setProgress).catch(() => {})
-      api.listScripts().then((scripts) => setTotalScripts(scripts.length)).catch(() => {})
+      api.listScripts()
+        .then(async (loaded) => {
+          setScripts(loaded)
+          try {
+            const p = await api.getRecordingProgress()
+            setProgress(p)
+          } catch {
+            setProgress([])
+          }
+        })
+        .catch(() => setScripts([]))
     }
   }, [serverAvailable])
 
-  const totalRecorded = progress.reduce((sum, p) => sum + p.recorded, 0)
-  const totalLines = progress.reduce((sum, p) => sum + p.total, 0)
+  // Use progress when available; otherwise build from scripts (0 recorded each)
+  const displayProgress: RecordingProgress[] =
+    progress.length > 0
+      ? progress
+      : scripts.map((s) => ({
+          script_id: s.id,
+          script_name: s.name,
+          recorded: 0,
+          total: s.line_count,
+          remaining: s.line_count,
+          percent: 0,
+        }))
+
+  const totalRecorded = displayProgress.reduce((sum, p) => sum + p.recorded, 0)
+  const totalLines = displayProgress.reduce((sum, p) => sum + p.total, 0)
 
   // Server not available
   if (serverAvailable === false) {
@@ -256,7 +278,7 @@ export function Welcome() {
             <div className="flex flex-wrap gap-8 md:gap-12 mb-12">
               <div>
                 <p className="text-3xl font-semibold" style={{ color: 'var(--studio-text-0)' }}>
-                  {totalScripts}
+                  {scripts.length}
                 </p>
                 <p className="text-sm mt-0.5" style={{ color: 'var(--studio-text-2)' }}>
                   <GravityText gravityRadius={80} gravityStrength={0.25}>Scripts</GravityText>
@@ -287,7 +309,7 @@ export function Welcome() {
             </div>
 
             {/* Recording Progress */}
-            {progress.length > 0 && (
+            {displayProgress.length > 0 && (
               <div className="mb-12">
                 <p
                   className="text-xs font-medium tracking-widest uppercase mb-4"
@@ -298,7 +320,7 @@ export function Welcome() {
                   </GravityText>
                 </p>
                 <div className="space-y-4">
-                  {progress.map((p) => (
+                  {displayProgress.map((p) => (
                     <div key={p.script_id} className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-body font-medium" style={{ color: 'var(--studio-text-0)' }}>
@@ -375,9 +397,9 @@ export function Welcome() {
             <LiquidButton
               variant="primary"
               onClick={() => navigate('/record')}
-              disabled={totalScripts === 0}
+              disabled={scripts.length === 0}
             >
-              {totalScripts === 0 ? 'No scripts available' : 'Start Recording'}
+              {scripts.length === 0 ? 'No scripts available' : 'Start Recording'}
               <LiquidMetalIcon size={18}>
                 <ChevronRight size={18} />
               </LiquidMetalIcon>

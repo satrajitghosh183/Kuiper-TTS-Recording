@@ -716,12 +716,23 @@ async def delete_recording_route(recording_id: int, request: Request):
     user_id = get_current_user_id(request)
     try:
         record = await db.get_recording(recording_id)
-        if not record or str(record.get("user_id")) != user_id:
+        if not record:
+            raise HTTPException(404, "Recording not found")
+        # Allow if user_id matches, or legacy (user_id null) and recorder_name matches
+        record_user_id = record.get("user_id")
+        record_recorder = record.get("recorder_name", "")
+        if record_user_id is not None:
+            if str(record_user_id) != user_id:
+                raise HTTPException(404, "Recording not found")
+        elif record_recorder != user_id:
             raise HTTPException(404, "Recording not found")
         success = await db.delete_recording(recording_id)
         if not success:
             raise HTTPException(404, "Recording not found")
-        return {"success": True}
+        return JSONResponse(
+            content={"success": True},
+            headers=_cors_headers_for_request(request),
+        )
     except HTTPException:
         raise
     except Exception as e:
