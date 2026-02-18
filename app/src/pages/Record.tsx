@@ -17,6 +17,7 @@ interface RecordingEntry {
   text: string
   duration_seconds: number
   is_valid: boolean
+  storage_path?: string
 }
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -170,6 +171,7 @@ export function Record() {
             text: rec.text || rec.phrase_text,
             duration_seconds: rec.duration_seconds,
             is_valid: rec.is_valid,
+            storage_path: rec.storage_path,
           })
         })
         setRecordings(recordingsMap)
@@ -331,6 +333,7 @@ export function Record() {
             text: currentLine,
             duration_seconds: result.duration_seconds,
             is_valid: result.is_valid,
+            storage_path: result.storage_path,
           })
         )
         clearRecording()
@@ -429,7 +432,7 @@ export function Record() {
       const entry = recordings.get(recordingKey)
       if (entry?.id) {
         api
-          .fetchRecordingAudio(entry.id)
+          .fetchRecordingAudio(entry.id, entry.storage_path)
           .then((blob) => {
             const url = URL.createObjectURL(blob)
             const audio = new Audio(url)

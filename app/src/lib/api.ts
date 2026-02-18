@@ -62,6 +62,7 @@ export interface RecordingProgress {
 export interface SaveRecordingResult {
   success: boolean
   id?: number
+  storage_path?: string
   duration_seconds: number
   peak_amplitude: number
   rms_level: number

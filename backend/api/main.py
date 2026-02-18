@@ -114,9 +114,15 @@ async def rate_limit_middleware(request: Request, call_next):
 def _cors_headers_for_request(request: Request) -> dict:
     """Add CORS headers so error responses work from frontend. Required when auth fails (401)."""
     origin = (request.headers.get("origin") or "").rstrip("/")
-    allowed = settings.cors_origins if settings.is_production else ["*"]
-    normalized_allowed = [o.rstrip("/") for o in allowed]
-    if origin and (origin in normalized_allowed or "*" in normalized_allowed):
+    # Always check against configured origins (works in both dev and prod)
+    normalized_allowed = [o.rstrip("/") for o in settings.cors_origins]
+    
+    # In development, also allow any origin
+    is_allowed = origin in normalized_allowed
+    if not settings.is_production and origin:
+        is_allowed = True
+    
+    if origin and is_allowed:
         # Must echo specific origin when credentials are used (cannot use *)
         return {
             "Access-Control-Allow-Origin": origin,
@@ -264,6 +270,7 @@ class RecordingProgressResponse(BaseModel):
 class SaveRecordingResponse(BaseModel):
     success: bool
     id: Optional[int] = None
+    storage_path: Optional[str] = None
     duration_seconds: float = 0
     peak_amplitude: float = 0
     rms_level: float = 0
@@ -564,6 +571,7 @@ async def save_recording(
         return SaveRecordingResponse(
             success=True,
             id=record.get("id"),
+            storage_path=record.get("storage_path"),
             duration_seconds=audio_info.duration_seconds,
             peak_amplitude=audio_info.peak_amplitude,
             rms_level=audio_info.rms_level,
