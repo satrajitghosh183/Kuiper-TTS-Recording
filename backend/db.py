@@ -25,9 +25,9 @@ def get_supabase() -> Client:
 # ============================================================================
 
 async def list_scripts() -> List[Dict[str, Any]]:
-    """List all scripts ordered by name."""
+    """List all scripts ordered by creation order (id)."""
     client = get_supabase()
-    result = client.table("scripts").select("*").order("name").execute()
+    result = client.table("scripts").select("*").order("id").execute()
     return result.data
 
 

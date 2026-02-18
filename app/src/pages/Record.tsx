@@ -206,37 +206,8 @@ export function Record() {
     setRecordingActive(isRecording)
   }, [isRecording, setRecordingActive])
 
-  // Auto-save after a short delay when recording stops (gives time to preview/redo)
+  // Ref for auto-save timer (declared here, effect is after handleSave)
   const autoSaveTimerRef = useRef<number | null>(null)
-  
-  useEffect(() => {
-    // Clear any pending auto-save timer
-    if (autoSaveTimerRef.current) {
-      window.clearTimeout(autoSaveTimerRef.current)
-      autoSaveTimerRef.current = null
-    }
-    
-    if (audioBlob && !isRecording && !autoSaveTriggeredRef.current && saveState === 'idle') {
-      // Delay auto-save by 2 seconds to give user time to preview or redo
-      autoSaveTimerRef.current = window.setTimeout(() => {
-        if (!autoSaveTriggeredRef.current) {
-          autoSaveTriggeredRef.current = true
-          handleSave()
-        }
-      }, 2000)
-    }
-    
-    // Reset the flag when audioBlob is cleared (e.g., after redo)
-    if (!audioBlob) {
-      autoSaveTriggeredRef.current = false
-    }
-    
-    return () => {
-      if (autoSaveTimerRef.current) {
-        window.clearTimeout(autoSaveTimerRef.current)
-      }
-    }
-  }, [audioBlob, isRecording, saveState, handleSave])
 
   const handleRecord = useCallback(async () => {
     if (isRecording) {
@@ -382,6 +353,36 @@ export function Record() {
       voiceAnnounce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, true)
     }
   }, [audioBlob, currentScript, currentLineIndex, currentLine, recordingKey, clearRecording, announce, voiceAnnounce, accessibilitySettings.saveRecordingsLocally])
+
+  // Auto-save after a short delay when recording stops (gives time to preview/redo)
+  useEffect(() => {
+    // Clear any pending auto-save timer
+    if (autoSaveTimerRef.current) {
+      window.clearTimeout(autoSaveTimerRef.current)
+      autoSaveTimerRef.current = null
+    }
+    
+    if (audioBlob && !isRecording && !autoSaveTriggeredRef.current && saveState === 'idle') {
+      // Delay auto-save by 2 seconds to give user time to preview or redo
+      autoSaveTimerRef.current = window.setTimeout(() => {
+        if (!autoSaveTriggeredRef.current) {
+          autoSaveTriggeredRef.current = true
+          handleSave()
+        }
+      }, 2000)
+    }
+    
+    // Reset the flag when audioBlob is cleared (e.g., after redo)
+    if (!audioBlob) {
+      autoSaveTriggeredRef.current = false
+    }
+    
+    return () => {
+      if (autoSaveTimerRef.current) {
+        window.clearTimeout(autoSaveTimerRef.current)
+      }
+    }
+  }, [audioBlob, isRecording, saveState, handleSave])
 
   const handlePronounce = useCallback(async () => {
     if (!currentLine) return
