@@ -206,15 +206,35 @@ export function Record() {
     setRecordingActive(isRecording)
   }, [isRecording, setRecordingActive])
 
-  // Auto-save when recording stops and audioBlob is available
+  // Auto-save after a short delay when recording stops (gives time to preview/redo)
+  const autoSaveTimerRef = useRef<number | null>(null)
+  
   useEffect(() => {
-    if (audioBlob && !isRecording && !autoSaveTriggeredRef.current && saveState === 'idle') {
-      autoSaveTriggeredRef.current = true
-      handleSave()
+    // Clear any pending auto-save timer
+    if (autoSaveTimerRef.current) {
+      window.clearTimeout(autoSaveTimerRef.current)
+      autoSaveTimerRef.current = null
     }
-    // Reset the flag when audioBlob is cleared
+    
+    if (audioBlob && !isRecording && !autoSaveTriggeredRef.current && saveState === 'idle') {
+      // Delay auto-save by 2 seconds to give user time to preview or redo
+      autoSaveTimerRef.current = window.setTimeout(() => {
+        if (!autoSaveTriggeredRef.current) {
+          autoSaveTriggeredRef.current = true
+          handleSave()
+        }
+      }, 2000)
+    }
+    
+    // Reset the flag when audioBlob is cleared (e.g., after redo)
     if (!audioBlob) {
       autoSaveTriggeredRef.current = false
+    }
+    
+    return () => {
+      if (autoSaveTimerRef.current) {
+        window.clearTimeout(autoSaveTimerRef.current)
+      }
     }
   }, [audioBlob, isRecording, saveState, handleSave])
 
@@ -292,6 +312,13 @@ export function Record() {
   }, [currentScript, currentLineIndex, currentScriptIndex, scripts, clearRecording, voiceAnnounce])
 
   const handleRedo = useCallback(() => {
+    // Cancel any pending auto-save
+    if (autoSaveTimerRef.current) {
+      window.clearTimeout(autoSaveTimerRef.current)
+      autoSaveTimerRef.current = null
+    }
+    autoSaveTriggeredRef.current = false
+    
     setRecordings(prev => {
       const next = new Map(prev)
       next.delete(recordingKey)
@@ -300,6 +327,7 @@ export function Record() {
     clearRecording()
     setSaveError(null)
     setPlayError(null)
+    setSaveState('idle')
     voiceAnnounce('Recording cleared. Ready to record again.', false)
   }, [recordingKey, clearRecording, voiceAnnounce])
 

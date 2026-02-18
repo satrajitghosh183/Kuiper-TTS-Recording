@@ -60,19 +60,21 @@ export function RecordingControls({
           <Check size={22} strokeWidth={2} />
         </div>
       )}
-      {/* Manual save button - only show if auto-save hasn't triggered yet */}
+      {/* Save now button - shows when there's an unsaved blob, allows immediate save */}
       {hasUnsavedBlob && onSave && saveState === 'idle' && (
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={disabled}
-          className={`${btnClass} text-[var(--studio-accent)]`}
-          aria-label="Save recording (S)"
-        >
-          <LiquidMetalIcon size={22}>
-            <Save size={22} strokeWidth={2} />
-          </LiquidMetalIcon>
-        </button>
+        <Tooltip content="Auto-saves in 2s. Click to save now.">
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={disabled}
+            className={`${btnClass} text-[var(--studio-accent)] animate-pulse`}
+            aria-label="Save recording now (S) - auto-saves in 2 seconds"
+          >
+            <LiquidMetalIcon size={22}>
+              <Save size={22} strokeWidth={2} />
+            </LiquidMetalIcon>
+          </button>
+        </Tooltip>
       )}
       {onPlay && (
         <button
