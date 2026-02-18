@@ -1,11 +1,14 @@
-import { SkipBack, SkipForward, RefreshCw, Play, Save, Volume2 } from 'lucide-react'
+import { SkipBack, SkipForward, RefreshCw, Play, Save, Volume2, Loader2, Check } from 'lucide-react'
 import { LiquidMetalIcon } from '../LiquidMetalIcon'
 import { MicrophoneButton } from '../MicrophoneButton'
 import { Tooltip } from '../Tooltip'
 
+type SaveState = 'idle' | 'saving' | 'saved' | 'error'
+
 interface RecordingControlsProps {
   isRecording: boolean
   hasUnsavedBlob: boolean
+  saveState?: SaveState
   onRecord: () => void
   onPrev: () => void
   onNext: () => void
@@ -25,6 +28,7 @@ const btnClass =
 export function RecordingControls({
   isRecording,
   hasUnsavedBlob,
+  saveState = 'idle',
   onRecord,
   onPrev,
   onNext,
@@ -39,7 +43,25 @@ export function RecordingControls({
 }: RecordingControlsProps) {
   return (
     <div className="flex items-center justify-center gap-4 mt-6 flex-wrap">
-      {hasUnsavedBlob && onSave && (
+      {/* Save state indicator */}
+      {saveState === 'saving' && (
+        <div
+          className={`${btnClass} text-[var(--studio-accent)]`}
+          aria-label="Saving recording..."
+        >
+          <Loader2 size={22} strokeWidth={2} className="animate-spin" />
+        </div>
+      )}
+      {saveState === 'saved' && (
+        <div
+          className={`${btnClass} text-green-500`}
+          aria-label="Recording saved"
+        >
+          <Check size={22} strokeWidth={2} />
+        </div>
+      )}
+      {/* Manual save button - only show if auto-save hasn't triggered yet */}
+      {hasUnsavedBlob && onSave && saveState === 'idle' && (
         <button
           type="button"
           onClick={onSave}

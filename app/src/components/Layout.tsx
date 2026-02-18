@@ -1,13 +1,12 @@
 import { useLocation, Link, Outlet } from 'react-router-dom'
-import { Mic, Settings, Home, LogOut, Sun, Moon, Music } from 'lucide-react'
+import { Mic, Settings, LogOut, Sun, Moon, Music } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { LiquidMetalIcon } from './LiquidMetalIcon'
 import { useEffect, useState } from 'react'
 
 const navItems = [
-  { path: '/', icon: Home, label: 'Home' },
-  { path: '/record', icon: Mic, label: 'Record' },
+  { path: '/', icon: Mic, label: 'Record' },
   { path: '/library', icon: Music, label: 'Library' },
   { path: '/admin', icon: Settings, label: 'Admin' },
 ]

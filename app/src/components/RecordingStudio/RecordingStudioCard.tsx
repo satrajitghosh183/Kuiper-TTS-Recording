@@ -6,6 +6,8 @@ import { RecordingCD } from './RecordingCD'
 import { ProgressBump } from './ProgressBump'
 import { RecordingControls } from './RecordingControls'
 
+type SaveState = 'idle' | 'saving' | 'saved' | 'error'
+
 export interface RecordingStudioCardProps {
   phraseText: string
   scriptName: string
@@ -27,6 +29,7 @@ export interface RecordingStudioCardProps {
   onPronounce?: () => void
   onShowShortcuts?: () => void
   hasUnsavedBlob?: boolean
+  saveState?: SaveState
   canPrev: boolean
   canNext: boolean
   disabled: boolean
@@ -53,6 +56,7 @@ export function RecordingStudioCard({
   onPronounce,
   onShowShortcuts,
   hasUnsavedBlob = false,
+  saveState = 'idle',
   canPrev,
   canNext,
   disabled,
@@ -108,6 +112,7 @@ export function RecordingStudioCard({
         <RecordingControls
           isRecording={isRecording}
           hasUnsavedBlob={hasUnsavedBlob}
+          saveState={saveState}
           onRecord={onRecord}
           onPrev={onPrev}
           onNext={onNext}

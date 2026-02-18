@@ -19,6 +19,8 @@ interface RecordingEntry {
   is_valid: boolean
 }
 
+type SaveState = 'idle' | 'saving' | 'saved' | 'error'
+
 export function Record() {
   const navigate = useNavigate()
 
@@ -33,14 +35,16 @@ export function Record() {
   const [playError, setPlayError] = useState<string | null>(null)
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
   const [showAudioControls, setShowAudioControls] = useState(false)
+  const [saveState, setSaveState] = useState<SaveState>('idle')
   const audioPlaybackRef = useRef<HTMLAudioElement | null>(null)
+  const autoSaveTriggeredRef = useRef(false)
   const { announce } = useScreenReader()
   const { announce: voiceAnnounce } = useVoiceAnnouncements()
   const { settings: accessibilitySettings } = useAccessibilitySettingsContext()
   const { setRecordingActive } = useRecordingActive()
   const [audioGain, setAudioGain] = useState(() => {
     const v = localStorage.getItem('kuiper_audio_gain')
-    return v ? Math.max(20, Math.min(200, parseInt(v, 10))) : 100
+    return v ? Math.max(20, Math.min(200, parseInt(v, 10))) : 150
   })
   const [audioBass, setAudioBass] = useState(() => {
     const v = localStorage.getItem('kuiper_audio_bass')
@@ -202,6 +206,18 @@ export function Record() {
     setRecordingActive(isRecording)
   }, [isRecording, setRecordingActive])
 
+  // Auto-save when recording stops and audioBlob is available
+  useEffect(() => {
+    if (audioBlob && !isRecording && !autoSaveTriggeredRef.current && saveState === 'idle') {
+      autoSaveTriggeredRef.current = true
+      handleSave()
+    }
+    // Reset the flag when audioBlob is cleared
+    if (!audioBlob) {
+      autoSaveTriggeredRef.current = false
+    }
+  }, [audioBlob, isRecording, saveState, handleSave])
+
   const handleRecord = useCallback(async () => {
     if (isRecording) {
       stopRecording()
@@ -292,6 +308,7 @@ export function Record() {
     try {
       setSaveError(null)
       setPlayError(null)
+      setSaveState('saving')
       const result = await api.saveRecording(
         audioBlob,
         currentScript.id,
@@ -318,15 +335,20 @@ export function Record() {
           })
         )
         clearRecording()
+        setSaveState('saved')
         announce('Recording saved successfully.', 'polite')
-        voiceAnnounce('Recording saved successfully.', false)
+        voiceAnnounce('Recording saved.', false)
+        // Reset save state after brief display
+        setTimeout(() => setSaveState('idle'), 1500)
       } else {
+        setSaveState('error')
         setSaveError(result.error || 'Failed to save recording')
         announce(`Failed to save recording. ${result.error || 'Failed to save recording'}`, 'assertive')
         voiceAnnounce(`Failed to save recording. ${result.error || 'Failed to save recording'}`, true)
       }
     } catch (err) {
       console.error('Failed to save recording:', err)
+      setSaveState('error')
       setSaveError(err instanceof Error ? err.message : 'Failed to save recording')
       announce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, 'assertive')
       voiceAnnounce(`Failed to save recording. ${err instanceof Error ? err.message : 'Failed to save recording'}`, true)
@@ -569,6 +591,7 @@ export function Record() {
           onPronounce={accessibilitySettings.speakOut ? handlePronounce : undefined}
           onShowShortcuts={() => setShowKeyboardShortcuts(true)}
           hasUnsavedBlob={!!audioBlob}
+          saveState={saveState}
           canPrev={canPrev}
           canNext={canNext}
           disabled={disabled}
